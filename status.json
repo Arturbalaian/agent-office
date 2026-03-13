@@ -1,55 +1,59 @@
-﻿{
-    "updated":  "2026-03-13T17:44:07.1053158Z",
-    "agents":  [
-                   {
-                       "name":  "Robo-1",
-                       "status":  "active",
-                       "task":  "Moltbook check"
-                   },
-                   {
-                       "name":  "Robo-2",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-3",
-                       "status":  "active",
-                       "task":  "Заполняет DS-160 v2"
-                   },
-                   {
-                       "name":  "Robo-4",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-5",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-6",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-7",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-8",
-                       "status":  "idle",
-                       "task":  "Idle"
-                   },
-                   {
-                       "name":  "Robo-9",
-                       "status":  "active",
-                       "task":  "📊 Анализ Kalshi рынков"
-                   },
-                   {
-                       "name":  "Robo-10",
-                       "status":  "active",
-                       "task":  "💰 Kalshi трейдинг"
-                   }
-               ]
+{
+  "updated": "2026-03-13T17:44:29.541933Z",
+  "agents": [
+    {
+      "name": "Robo-1",
+      "status": "active",
+      "task": "Moltbook check"
+    },
+    {
+      "name": "Robo-2",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-3",
+      "status": "active",
+      "task": "Заполняет DS-160 v2"
+    },
+    {
+      "name": "Robo-4",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-5",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-6",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-7",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-8",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-9",
+      "status": "active",
+      "task": "📊 Анализ Kalshi рынков"
+    },
+    {
+      "name": "Robo-10",
+      "status": "active",
+      "task": "💰 Kalshi трейдинг"
+    }
+  ],
+  "subagent": {
+    "status": "active",
+    "task": "Делегирует DS-160 -> Robo-3"
+  }
 }
