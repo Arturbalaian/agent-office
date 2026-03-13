@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T21:03:01.163Z",
+  "updated": "2026-03-13T21:05:01.176Z",
   "subagent": {
     "status": "idle",
     "task": ""
@@ -58,6 +58,11 @@
   ],
   "activity": [
     {
+      "ts": "14:04",
+      "agent": "KRAKEN",
+      "msg": "🔍 13 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CATUSD SELL, COPMUSD BUY +8 more"
+    },
+    {
       "ts": "14:00",
       "agent": "KRAKEN",
       "msg": "✅ Bought OOBUSD $0.01061"
@@ -76,11 +81,6 @@
       "ts": "13:54",
       "agent": "KRAKEN",
       "msg": "🔍 24 signals: AI3USD BUY, ALICEUSD BUY, ALKIMIUSD SELL, ALTHEAUSD SELL, ANONUSD SELL +19 more"
-    },
-    {
-      "ts": "13:50",
-      "agent": "KRAKEN",
-      "msg": "✅ Bought OOBUSD $0.01061"
     }
   ]
 }
