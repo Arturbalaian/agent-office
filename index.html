@@ -37,6 +37,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  height: calc(100vh - 42px);
 }
 
 /* ─── ZONE WRAPPER ─── */
@@ -92,15 +93,12 @@ body {
   opacity: 0.7;
 }
 
-/* Pixel character */
-.agent-char {
-  display: flex;
-  flex-direction: column;
-  animation: breathe 3s ease-in-out infinite;
+/* 3D canvas for agent */
+.agent-canvas {
+  display: block;
+  width: 68px;
+  height: 82px;
 }
-@keyframes breathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-1px)} }
-.pr { display: flex; }
-.p { width: 5px; height: 5px; display: inline-block; }
 
 /* Desk surface */
 .desk-surface {
@@ -237,6 +235,7 @@ body {
 .middle-row {
   display: flex;
   gap: 8px;
+  flex: 1;
 }
 
 /* ─── REST ZONE ─── */
@@ -245,15 +244,19 @@ body {
   border-color: #1a2530;
   padding: 14px 8px 8px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .rest-items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 .sofa {
-  font-size: 28px;
+  font-size: 36px;
   animation: sofabounce 4s ease-in-out infinite;
 }
 @keyframes sofabounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
@@ -298,15 +301,19 @@ body {
   border-color: #2a1a40;
   padding: 14px 10px 10px;
   flex: 1.2;
+  display: flex;
+  flex-direction: column;
 }
 .director-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  justify-content: center;
+  flex: 1;
 }
 .dir-plant-back {
-  font-size: 24px;
+  font-size: 40px;
   animation: plantway 3s ease-in-out infinite;
 }
 @keyframes plantway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
@@ -378,6 +385,13 @@ body {
   animation: actbar 2s ease-in-out infinite;
 }
 
+/* Director 3D canvas */
+.director-canvas {
+  display: block;
+  width: 95px;
+  height: 110px;
+}
+
 /* ─── TICKER ─── */
 .ticker {
   position: fixed;
@@ -414,25 +428,6 @@ body {
 
 /* padding for ticker */
 .floor { padding-bottom: 44px; }
-
-/* Colors for pixels */
-.p0{background:transparent}
-.p1{background:#ffcc88}
-.p2{background:#2244cc}
-.p3{background:#111133}
-.p4{background:#cc2222}
-.p5{background:#ffff00}
-.p6{background:#eeeeee}
-.p7{background:#00cc66}
-.p8{background:#553300}
-.p9{background:#ff88aa}
-.pa{background:#888899}
-.pb{background:#ff8800}
-.pc{background:#8822cc}
-.pd{background:#0088ff}
-.pe{background:#44cc44}
-.pf{background:#cc8833}
-.pg{background:#00aaff}
 </style>
 </head>
 <body>
@@ -453,15 +448,7 @@ body {
       <div class="desk-unit">
         <div class="status-dot on" id="dot-molt"></div>
         <div class="chair">🪑</div>
-        <div class="agent-char" id="char-molt">
-          <div class="pr"><span class="p p0"></span><span class="p pc"></span><span class="p pc"></span><span class="p pc"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p pc"></span><span class="p p1"></span><span class="p p1"></span><span class="p p1"></span><span class="p pc"></span></div>
-          <div class="pr"><span class="p pc"></span><span class="p p3"></span><span class="p p1"></span><span class="p p3"></span><span class="p pc"></span></div>
-          <div class="pr"><span class="p pc"></span><span class="p p1"></span><span class="p p1"></span><span class="p p1"></span><span class="p pc"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p pc"></span><span class="p pc"></span><span class="p pc"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p pc"></span><span class="p p6"></span><span class="p pc"></span><span class="p p6"></span><span class="p pc"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span></div>
-        </div>
+        <canvas class="agent-canvas" id="canvas-molt" width="68" height="82"></canvas>
         <div class="desk-surface">
           <div>
             <div class="macbook"><div class="macbook-screen">
@@ -484,15 +471,7 @@ body {
       <div class="desk-unit">
         <div class="status-dot idle" id="dot-browser"></div>
         <div class="chair">🪑</div>
-        <div class="agent-char">
-          <div class="pr"><span class="p p0"></span><span class="p p8"></span><span class="p p8"></span><span class="p p8"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p p8"></span><span class="p p1"></span><span class="p p1"></span><span class="p p1"></span><span class="p p8"></span></div>
-          <div class="pr"><span class="p p8"></span><span class="p p3"></span><span class="p p1"></span><span class="p p3"></span><span class="p p8"></span></div>
-          <div class="pr"><span class="p p8"></span><span class="p p1"></span><span class="p p6"></span><span class="p p1"></span><span class="p p8"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p pd"></span><span class="p pd"></span><span class="p pd"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p pd"></span><span class="p p6"></span><span class="p pd"></span><span class="p p6"></span><span class="p pd"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span></div>
-        </div>
+        <canvas class="agent-canvas" id="canvas-browser" width="68" height="82"></canvas>
         <div class="desk-surface">
           <div>
             <div class="macbook"><div class="macbook-screen" style="background:#000820">
@@ -515,15 +494,7 @@ body {
       <div class="desk-unit">
         <div class="status-dot idle" id="dot-coder"></div>
         <div class="chair">🪑</div>
-        <div class="agent-char">
-          <div class="pr"><span class="p p0"></span><span class="p p3"></span><span class="p p3"></span><span class="p p3"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p p3"></span><span class="p pa"></span><span class="p pa"></span><span class="p pa"></span><span class="p p3"></span></div>
-          <div class="pr"><span class="p p3"></span><span class="p pd"></span><span class="p pa"></span><span class="p pd"></span><span class="p p3"></span></div>
-          <div class="pr"><span class="p p3"></span><span class="p pa"></span><span class="p p3"></span><span class="p pa"></span><span class="p p3"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p pe"></span><span class="p pe"></span><span class="p pe"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p pe"></span><span class="p p5"></span><span class="p pe"></span><span class="p p5"></span><span class="p pe"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span></div>
-        </div>
+        <canvas class="agent-canvas" id="canvas-coder" width="68" height="82"></canvas>
         <div class="desk-surface">
           <div>
             <div class="macbook"><div class="macbook-screen" style="background:#001a00">
@@ -546,15 +517,7 @@ body {
       <div class="desk-unit">
         <div class="status-dot idle" id="dot-arch"></div>
         <div class="chair">🪑</div>
-        <div class="agent-char">
-          <div class="pr"><span class="p p0"></span><span class="p pf"></span><span class="p pf"></span><span class="p pf"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p pf"></span><span class="p p1"></span><span class="p p1"></span><span class="p p1"></span><span class="p pf"></span></div>
-          <div class="pr"><span class="p pf"></span><span class="p p8"></span><span class="p p1"></span><span class="p p8"></span><span class="p pf"></span></div>
-          <div class="pr"><span class="p pf"></span><span class="p p1"></span><span class="p p6"></span><span class="p p1"></span><span class="p pf"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p6"></span><span class="p p6"></span><span class="p p6"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p p6"></span><span class="p pf"></span><span class="p p6"></span><span class="p pf"></span><span class="p p6"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span><span class="p p3"></span><span class="p p0"></span></div>
-        </div>
+        <canvas class="agent-canvas" id="canvas-arch" width="68" height="82"></canvas>
         <div class="desk-surface">
           <div>
             <div class="macbook"><div class="macbook-screen" style="background:#0a0820">
@@ -615,16 +578,8 @@ body {
       <div class="director-inner">
         <div class="dir-plant-back">🌳</div>
 
-        <!-- Director pixel char -->
-        <div class="agent-char" style="animation-delay:.5s">
-          <div class="pr"><span class="p p0"></span><span class="p p7"></span><span class="p p7"></span><span class="p p7"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p p7"></span><span class="p pa"></span><span class="p pa"></span><span class="p pa"></span><span class="p p7"></span></div>
-          <div class="pr"><span class="p p7"></span><span class="p p5"></span><span class="p pa"></span><span class="p p5"></span><span class="p p7"></span></div>
-          <div class="pr"><span class="p p7"></span><span class="p pa"></span><span class="p p7"></span><span class="p pa"></span><span class="p p7"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p p2"></span><span class="p p2"></span><span class="p p2"></span><span class="p p0"></span></div>
-          <div class="pr"><span class="p p2"></span><span class="p p6"></span><span class="p p2"></span><span class="p p6"></span><span class="p p2"></span></div>
-          <div class="pr"><span class="p p0"></span><span class="p pa"></span><span class="p p0"></span><span class="p pa"></span><span class="p p0"></span></div>
-        </div>
+        <!-- Director 3D -->
+        <canvas class="director-canvas" id="canvas-director" width="95" height="110"></canvas>
 
         <div class="chair" style="font-size:16px;margin-top:-4px">🪑</div>
 
@@ -674,42 +629,248 @@ body {
   </div>
 </div>
 
+<!-- Three.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
 <script>
-  // Clock
-  setInterval(() => {
-    const n = new Date();
-    document.getElementById('clk').textContent =
-      String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
-  }, 1000);
+/* ═══════════════════════════════════
+   AGENT STATE MANAGEMENT
+   ═══════════════════════════════════ */
+const agentStates = {
+  molt: true,
+  browser: false,
+  coder: false,
+  arch: false,
+  director: true
+};
 
-  // Agent status simulation
-  const agents = [
-    { bar: 'bar-molt', dot: 'dot-molt', active: true },
-    { bar: 'bar-browser', dot: 'dot-browser', active: false },
-    { bar: 'bar-coder', dot: 'dot-coder', active: false },
-    { bar: 'bar-arch', dot: 'dot-arch', active: false },
-  ];
+/* ═══════════════════════════════════
+   THREE.JS 3D CHARACTERS
+   ═══════════════════════════════════ */
+const scenes3d = [];
 
-  function setAgent(bar, dot, active) {
-    const b = document.getElementById(bar);
-    const d = document.getElementById(dot);
-    if (active) {
-      b.className = 'activity-bar active';
-      d.className = 'status-dot on';
-    } else {
-      b.className = 'activity-bar idle';
-      d.className = 'status-dot idle';
-    }
+function buildCharacterMesh(color, scale, isRobot) {
+  const group = new THREE.Group();
+
+  const bodyColor = new THREE.Color(color);
+  const bodyMat   = new THREE.MeshLambertMaterial({ color: bodyColor });
+
+  // ── Head ──
+  const headGeo = new THREE.SphereGeometry(0.30 * scale, 10, 10);
+  const head    = new THREE.Mesh(headGeo, bodyMat);
+  head.position.y = 0.88 * scale;
+  group.add(head);
+
+  // ── Body ──
+  const bodyGeo = new THREE.CylinderGeometry(0.20 * scale, 0.23 * scale, 0.58 * scale, 8);
+  const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+  bodyMesh.position.y = 0.28 * scale;
+  group.add(bodyMesh);
+
+  // ── Arms ──
+  const armGeo = new THREE.CylinderGeometry(0.075 * scale, 0.075 * scale, 0.42 * scale, 6);
+
+  const leftArm  = new THREE.Mesh(armGeo, bodyMat);
+  leftArm.position.set(-0.33 * scale, 0.34 * scale, 0);
+  leftArm.rotation.z = 0.52;
+  group.add(leftArm);
+
+  const rightArm = new THREE.Mesh(armGeo, bodyMat);
+  rightArm.position.set(0.33 * scale, 0.34 * scale, 0);
+  rightArm.rotation.z = -0.52;
+  group.add(rightArm);
+
+  // ── Legs ──
+  const legGeo = new THREE.CylinderGeometry(0.09 * scale, 0.08 * scale, 0.36 * scale, 6);
+
+  const leftLeg = new THREE.Mesh(legGeo, bodyMat);
+  leftLeg.position.set(-0.11 * scale, -0.16 * scale, 0);
+  group.add(leftLeg);
+
+  const rightLeg = new THREE.Mesh(legGeo, bodyMat);
+  rightLeg.position.set(0.11 * scale, -0.16 * scale, 0);
+  group.add(rightLeg);
+
+  // ── Eyes ──
+  const eyeColor  = isRobot ? 0x00ffff : 0xffffff;
+  const eyeEmit   = isRobot ? 0x009999 : 0x444444;
+  const eyeMat    = new THREE.MeshLambertMaterial({ color: eyeColor, emissive: eyeEmit });
+  const eyeRadius = 0.07 * scale;
+
+  const leftEye = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius, 6, 6), eyeMat);
+  leftEye.position.set(-0.11 * scale, 0.92 * scale, 0.27 * scale);
+  group.add(leftEye);
+
+  const rightEye = new THREE.Mesh(new THREE.SphereGeometry(eyeRadius, 6, 6), eyeMat);
+  rightEye.position.set(0.11 * scale, 0.92 * scale, 0.27 * scale);
+  group.add(rightEye);
+
+  // ── Robot antenna (director only) ──
+  if (isRobot) {
+    const antGeo  = new THREE.CylinderGeometry(0.03 * scale, 0.03 * scale, 0.20 * scale, 5);
+    const antMat  = new THREE.MeshLambertMaterial({ color: 0x44ff88, emissive: 0x00aa44 });
+    const antenna = new THREE.Mesh(antGeo, antMat);
+    antenna.position.set(0, (0.88 + 0.30 + 0.11) * scale, 0);
+    group.add(antenna);
+
+    const ballGeo = new THREE.SphereGeometry(0.07 * scale, 6, 6);
+    const ballMat = new THREE.MeshLambertMaterial({ color: 0x00ff88, emissive: 0x00aa44 });
+    const ball    = new THREE.Mesh(ballGeo, ballMat);
+    ball.position.set(0, (0.88 + 0.30 + 0.22) * scale, 0);
+    group.add(ball);
   }
 
-  // Simulate occasional activity
-  setInterval(() => {
-    agents.forEach((a, i) => {
-      if (i === 0) return; // moltbot always active
-      a.active = Math.random() > 0.7;
-      setAgent(a.bar, a.dot, a.active);
-    });
-  }, 8000);
+  return { group, head, leftArm, rightArm, leftLeg, rightLeg };
+}
+
+function createScene3d(canvasId, agentKey, color, scale, isRobot) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const w = parseInt(canvas.getAttribute('width'));
+  const h = parseInt(canvas.getAttribute('height'));
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+
+  const scene = new THREE.Scene();
+
+  // Camera – character spans roughly y=[-0.34, 1.2] at scale=1
+  // mid ≈ 0.43. For director scale=1.5 mid ≈ 0.65.
+  const camY = 0.44 * scale;
+  const camZ = 3.6 * scale;
+  const camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
+  camera.position.set(0, camY, camZ);
+  camera.lookAt(0, camY, 0);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 0.65);
+  scene.add(ambient);
+
+  const sunLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  sunLight.position.set(2, 3, 3);
+  scene.add(sunLight);
+
+  // Accent / rim light with agent color
+  const rimLight = new THREE.DirectionalLight(color, 0.5);
+  rimLight.position.set(-2, 0, -2);
+  scene.add(rimLight);
+
+  const { group, head, leftArm, rightArm, leftLeg, rightLeg } = buildCharacterMesh(color, scale, isRobot);
+  scene.add(group);
+
+  // Phase offset so all agents don't bob in sync
+  const phase = Math.random() * Math.PI * 2;
+
+  scenes3d.push({
+    renderer, scene, camera,
+    group, head, leftArm, rightArm, leftLeg, rightLeg,
+    agentKey, scale, phase, isRobot
+  });
+}
+
+/* ═══════════════════════════════════
+   ANIMATION LOOP
+   ═══════════════════════════════════ */
+function animate3d() {
+  requestAnimationFrame(animate3d);
+  const t = Date.now() / 1000;
+
+  scenes3d.forEach(s => {
+    const active = agentStates[s.agentKey];
+    const freq   = active ? 2.8 : 1.4;
+    const amp    = active ? 0.045 : 0.018;
+
+    // Idle bob
+    s.group.position.y = Math.sin(t * freq + s.phase) * amp;
+
+    // Gentle sway / look-around
+    s.group.rotation.y = Math.sin(t * 0.42 + s.phase) * 0.18;
+
+    if (active) {
+      // Arms swing like working
+      s.leftArm.rotation.z  =  0.52 + Math.sin(t * 4.5 + s.phase)         * 0.30;
+      s.rightArm.rotation.z = -0.52 + Math.sin(t * 4.5 + s.phase + Math.PI) * 0.30;
+      // Head nod
+      s.head.rotation.x = Math.sin(t * 3.0 + s.phase) * 0.10;
+      // Legs slight movement (director only – too subtle on small chars)
+      if (s.isRobot) {
+        s.leftLeg.rotation.x  =  Math.sin(t * 2.0) * 0.12;
+        s.rightLeg.rotation.x = -Math.sin(t * 2.0) * 0.12;
+      }
+    } else {
+      // Drift back to rest pose
+      s.leftArm.rotation.z  += ( 0.52 - s.leftArm.rotation.z)  * 0.08;
+      s.rightArm.rotation.z += (-0.52 - s.rightArm.rotation.z) * 0.08;
+      s.head.rotation.x     += (0    - s.head.rotation.x)      * 0.08;
+    }
+
+    s.renderer.render(s.scene, s.camera);
+  });
+}
+
+/* ═══════════════════════════════════
+   INIT
+   ═══════════════════════════════════ */
+// Молтбот   – фиолетовый
+createScene3d('canvas-molt',     'molt',     0x8833cc, 1.0, false);
+// Браузер   – синий
+createScene3d('canvas-browser',  'browser',  0x2255ff, 1.0, false);
+// Кодер     – зелёный
+createScene3d('canvas-coder',    'coder',    0x22cc55, 1.0, false);
+// Архивариус – оранжевый
+createScene3d('canvas-arch',     'arch',     0xff8833, 1.0, false);
+// Директор  – зелёный робот, крупнее
+createScene3d('canvas-director', 'director', 0x00cc44, 1.5, true);
+
+animate3d();
+
+/* ═══════════════════════════════════
+   CLOCK
+   ═══════════════════════════════════ */
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+}, 1000);
+// Init clock immediately
+(function(){
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+})();
+
+/* ═══════════════════════════════════
+   AGENT STATUS SIMULATION
+   ═══════════════════════════════════ */
+const agentDefs = [
+  { bar: 'bar-molt',    dot: 'dot-molt',    key: 'molt',    alwaysOn: true  },
+  { bar: 'bar-browser', dot: 'dot-browser', key: 'browser', alwaysOn: false },
+  { bar: 'bar-coder',   dot: 'dot-coder',   key: 'coder',   alwaysOn: false },
+  { bar: 'bar-arch',    dot: 'dot-arch',    key: 'arch',    alwaysOn: false },
+];
+
+function setAgentStatus(def, active) {
+  const b = document.getElementById(def.bar);
+  const d = document.getElementById(def.dot);
+  if (active) {
+    b.className = 'activity-bar active';
+    d.className = 'status-dot on';
+  } else {
+    b.className = 'activity-bar idle';
+    d.className = 'status-dot idle';
+  }
+  agentStates[def.key] = active;
+}
+
+setInterval(() => {
+  agentDefs.forEach(a => {
+    if (a.alwaysOn) return;
+    const active = Math.random() > 0.65;
+    setAgentStatus(a, active);
+  });
+}, 8000);
 </script>
 
 </body>
