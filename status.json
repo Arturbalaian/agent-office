@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:24:02.781Z",
+  "updated": "2026-03-13T19:26:45.284Z",
   "subagent": {
     "status": "idle",
     "task": "Ожидание задачи"
@@ -58,19 +58,29 @@
   ],
   "activity": [
     {
-      "ts": "11:30",
-      "agent": "System",
-      "msg": "🟢 Crypto bots online — scanning every 5 minutes"
+      "ts": "12:26",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: VOOIUSD — Kraken: EAccount:Invalid permissions:VOOI trading restricted for US:CA."
     },
     {
-      "ts": "11:22",
-      "agent": "Robo-5",
-      "msg": "🔍 Scanned 618 pairs — no signals"
+      "ts": "12:26",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: TEAUSD — Kraken: EAccount:Invalid permissions:TEA trading restricted for US:CA."
     },
     {
-      "ts": "11:20",
-      "agent": "System",
-      "msg": "⚙️ Robo-7 (BTC/ETH) disabled — budget redirected to alts and shitcoins"
+      "ts": "12:26",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: SUNDOGUSD — Kraken: EOrder:Insufficient funds"
+    },
+    {
+      "ts": "12:26",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: SDNUSD — Kraken: EAccount:Invalid permissions:SDN trading restricted for US:CA."
+    },
+    {
+      "ts": "12:26",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: RETARDIOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
     }
   ]
 }
