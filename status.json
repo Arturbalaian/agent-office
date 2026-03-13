@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T23:01:01.418Z",
+  "updated": "2026-03-13T23:03:01.428Z",
   "subagent": {
-    "status": "idle",
-    "task": ""
+    "status": "active",
+    "task": "Переделка Prompt Studio UI"
   },
   "agents": [
     {
