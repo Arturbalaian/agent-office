@@ -214,6 +214,14 @@ body {
     </div>
   </div>
 
+  <!-- AI BUILDERS ZONE -->
+  <div class="zone" style="background:#0c1a10;border-color:#1a4020;margin-top:8px;">
+    <div class="zone-label" style="color:#00ffaa;">🎬 AI Builders</div>
+    <div class="worker-grid" id="builder-grid" style="grid-template-columns:repeat(4,1fr);gap:4px;">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
   <!-- CORRIDOR -->
   <div class="zone corridor">
     <div class="zone-label">🚶 Corridor</div>
@@ -349,6 +357,31 @@ agents.forEach(a => {
     `;
   }
   grid.appendChild(card);
+});
+
+// ── AI BUILDERS ──
+const builders = [
+  { id:'b1', name:'BORDER',    role:'Border Patrol',   emoji:'🚔', color:'#ff6644' },
+  { id:'b2', name:'GRITTY',    role:'Gritty/Homeless', emoji:'🏚️', color:'#ff9933' },
+  { id:'b3', name:'ПЕРСОНАЖИ', role:'Мои персонажи',   emoji:'🎭', color:'#aa66ff' },
+  { id:'b4', name:'ВЫСЕЛЕНИЕ', role:'Eviction Drama',  emoji:'🏠', color:'#ff4488' },
+  { id:'b5', name:'ДОКТОР',    role:'Viral Doctor',    emoji:'🏥', color:'#44ccff' },
+  { id:'b6', name:'ICE',       role:'ICE Enforcement', emoji:'❄️', color:'#66ffee' },
+  { id:'b7', name:'ТАЙМЛАПС',  role:'Construction',    emoji:'🏗️', color:'#ffcc00' },
+  { id:'b8', name:'ФАБРИКА',   role:'Prompt Factory',  emoji:'⚙️', color:'#88ff44' },
+];
+const bgrid = document.getElementById('builder-grid');
+builders.forEach(b => {
+  const card = document.createElement('div');
+  card.className = 'wcard';
+  card.style.cssText = 'border-color:' + b.color + '22;min-height:80px;';
+  card.innerHTML = `
+    <div class="status-dot" id="bdot-${b.id}" style="background:#333"></div>
+    <div style="font-size:22px;margin:4px 0;">${b.emoji}</div>
+    <div class="w-name" style="color:${b.color};font-size:7px;">${b.name}</div>
+    <div class="w-task" id="btask-${b.id}" style="font-size:6px;color:#556677;">💤 Idle</div>
+  `;
+  bgrid.appendChild(card);
 });
 
 // ── THREE.JS CHARACTER FACTORY ──
