@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T22:43:01.375Z",
+  "updated": "2026-03-13T22:45:01.365Z",
   "subagent": {
     "status": "idle",
     "task": ""
@@ -58,6 +58,11 @@
   ],
   "activity": [
     {
+      "ts": "15:44",
+      "agent": "KRAKEN",
+      "msg": "🔍 29 signals: ACXUSD SELL, ADXUSD BUY, ALEOUSD BUY, ALICEUSD BUY, AUSDUSD BUY +24 more"
+    },
+    {
       "ts": "15:39",
       "agent": "KRAKEN",
       "msg": "🔍 26 signals: ACXUSD SELL, ALICEUSD BUY, AUSDUSD BUY, BANANAS31USD SELL, BERAUSD SELL +21 more"
@@ -76,11 +81,6 @@
       "ts": "15:24",
       "agent": "KRAKEN",
       "msg": "🔍 22 signals: ACXUSD SELL, ALICEUSD BUY, BANANAS31USD SELL, BNCUSD BUY, CATUSD SELL +17 more"
-    },
-    {
-      "ts": "15:19",
-      "agent": "KRAKEN",
-      "msg": "🔍 17 signals: ACXUSD SELL, ALICEUSD BUY, BANANAS31USD SELL, CATUSD SELL, FOLKSUSD BUY +12 more"
     }
   ]
 }
