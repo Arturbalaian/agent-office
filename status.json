@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T18:16:03.147Z",
+  "updated": "2026-03-13T18:18:03.323Z",
   "subagent": {
     "status": "active",
-    "task": "Строит Robo-6 (альткоин скаутер)"
+    "task": "Строит Robo-5 (шиткоин скаутер)"
   },
   "agents": [
     {
@@ -27,13 +27,13 @@
     },
     {
       "name": "Robo-5",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "Инициализация (шиткоин сканер)"
     },
     {
       "name": "Robo-6",
       "status": "active",
-      "task": "Инициализация (альткоин аналитик)"
+      "task": "Сканирует топ альты (SOL/ADA/XRP...)"
     },
     {
       "name": "Robo-7",
@@ -43,7 +43,7 @@
     {
       "name": "Robo-8",
       "status": "active",
-      "task": "Kraken маржинальный трейдер"
+      "task": "Kraken трейдер — ждёт сигналов"
     },
     {
       "name": "Robo-9",
