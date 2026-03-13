@@ -1,5 +1,10 @@
 [
   {
+    "ts": "15:29",
+    "agent": "KRAKEN",
+    "msg": "🔍 21 signals: ACXUSD SELL, ALICEUSD BUY, BNCUSD BUY, CATUSD SELL, FOLKSUSD BUY +16 more"
+  },
+  {
     "ts": "15:24",
     "agent": "KRAKEN",
     "msg": "🔍 22 signals: ACXUSD SELL, ALICEUSD BUY, BANANAS31USD SELL, BNCUSD BUY, CATUSD SELL +17 more"
@@ -143,10 +148,5 @@
     "ts": "13:29",
     "agent": "KRAKEN",
     "msg": "🔍 16 signals: AI3USD BUY, ALICEUSD SELL, ALTHEAUSD SELL, ANONUSD SELL, BANANAS31USD SELL +11 more"
-  },
-  {
-    "ts": "13:24",
-    "agent": "KRAKEN",
-    "msg": "✅ Bought OOBUSD $0.01054"
   }
 ]
