@@ -841,8 +841,9 @@ function animate(){
       if(dist<0.08){
         group.position.x=agent.targetPos.x;
         group.position.z=agent.targetPos.z;
+        group.position.y=0;
+        group.rotation.z=0;
         agent.state=agent.state==='walking_to_rest'?'resting':'desk';
-        // face inward if resting
         if(agent.state==='resting'){
           const spot=restSpots[agent.restSpotIdx];
           group.rotation.y=spot.rot||Math.PI;
@@ -853,22 +854,16 @@ function animate(){
         const spd=agent.walkSpeed*dt;
         group.position.x+=dx/dist*spd;
         group.position.z+=dz/dist*spd;
-        // face direction of movement
         group.rotation.y=Math.atan2(dx,dz);
-        // Walking body sway
-        group.rotation.z=Math.sin(t*8+ph)*.07;
-        group.position.y=Math.abs(Math.sin(t*8+ph))*.06;
-        head.rotation.z=Math.sin(t*8+ph)*.05;
+        group.position.y=0;
+        group.rotation.z=0;
       }
     } else {
       group.rotation.z=0;
-      // Idle bob
-      const spd=agent.status==='active'?2:.6;
-      const amp=agent.status==='active'?.022:.007;
-      group.position.y=Math.sin(t*spd+ph)*amp;
-      head.rotation.y=Math.sin(t*.8+ph)*.08;
-      if(agent.status==='active') head.rotation.z=Math.sin(t*1.5+ph)*.04;
-      else head.rotation.z=0;
+      // Very subtle breathing only
+      group.position.y=Math.sin(t*.6+ph)*.005;
+      head.rotation.y=Math.sin(t*.4+ph)*.04;
+      head.rotation.z=0;
     }
 
     // ── Label follows agent ──
