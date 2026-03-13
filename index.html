@@ -48,16 +48,17 @@ body {
 
 /* ── WORKER CARD ── */
 .wcard {
-  background: #0c0c22;
-  border: 1px solid #1a2040;
-  border-radius: 4px;
+  background: linear-gradient(160deg, #090920, #0b0b22);
+  border: 1px solid #1a2055;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px 2px;
-  gap: 2px;
+  padding: 6px 2px 4px;
+  gap: 3px;
   position: relative;
   min-width: 0;
+  box-shadow: inset 0 0 8px #00000066;
 }
 .wcard canvas { display:block; }
 
@@ -89,10 +90,41 @@ body {
 }
 .w-task.active-task { color:#00ffcc; }
 
-.act-wrap { width:90%; background:#111122; border:1px solid #223; height:4px; border-radius:2px; overflow:hidden; }
-.act-bar { height:100%; background:#334455; border-radius:2px; width:100%; opacity:0.25; }
-.act-bar.running { background:#00ff88; opacity:1; animation: actrun 1.2s ease-in-out infinite; box-shadow:0 0 3px #00ff88; }
-@keyframes actrun { 0%{width:5%;margin-left:0} 50%{width:50%;margin-left:25%} 100%{width:5%;margin-left:90%} }
+/* ── AGENT GLOW ICON ── */
+.agent-icon-wrap {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px;
+  background: #06061a;
+  border: 2px solid #1a2040;
+  transition: box-shadow 0.4s, border-color 0.4s;
+  box-shadow: 0 0 4px 1px #112233;
+  margin: 2px 0;
+  flex-shrink: 0;
+}
+.agent-icon-wrap.status-idle {
+  box-shadow: 0 0 12px 4px #00ff88;
+  border-color: #00ff8855;
+}
+.agent-icon-wrap.status-active {
+  animation: pulse-blue 1.5s ease-in-out infinite;
+  border-color: #00d4ff55;
+}
+.agent-icon-wrap.status-error {
+  box-shadow: 0 0 12px 4px #ff3344;
+  border-color: #ff334455;
+}
+.agent-icon-wrap.status-offline {
+  box-shadow: 0 0 3px 1px #1a2233;
+  border-color: #1a2040;
+  opacity: 0.45;
+}
+@keyframes pulse-blue {
+  0%, 100% { box-shadow: 0 0 8px 2px #00d4ff; }
+  50% { box-shadow: 0 0 20px 8px #00d4ff; }
+}
+@keyframes actrun { 0%{width:0%} 100%{width:100%} }
 
 /* ── TEAM CELL STYLES ── */
 .team-row { display:flex; gap:2px; justify-content:center; align-items:flex-end; padding:1px 0; }
@@ -242,9 +274,7 @@ body {
         <canvas id="sec-canvas" width="60" height="68"></canvas>
         <div style="font:bold 9px monospace;color:#aa66ff;margin-top:2px;">SECRETARY</div>
         <div id="sec-task" style="font:7px monospace;color:#667799;text-align:center;max-width:110px;">💤 Waiting for task</div>
-        <div style="height:3px;width:100px;background:#1a1a30;border-radius:2px;margin-top:4px;overflow:hidden;">
-          <div id="sec-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#aa66ff,#6644cc);border-radius:2px;transition:width .5s;"></div>
-        </div>
+        <div class="agent-icon-wrap status-idle" id="glow-sec" style="width:38px;height:38px;font-size:18px;">📋</div>
       </div>
     </div>
 
@@ -304,6 +334,20 @@ body {
 <script type="module">
 import * as THREE from 'three';
 
+// ── AGENT ICONS MAP ──
+const AGENT_ICONS = {
+  'MOLTBOOK':  '💬',
+  'ASSISTANT': '🤖',
+  'SECRETARY': '📋',
+  'SCOUT':     '🔍',
+  'ANALYST':   '📊',
+  'LAWYER':    '⚖️',
+  'MARKETER':  '📣',
+  'KALSHI':    '📈',
+  'KRAKEN':    '🐙',
+};
+function getAgentIcon(name) { return AGENT_ICONS[name] || '🤖'; }
+
 // ── AGENT DATA ──
 // 10 cells total (same grid). type:'team' cells contain multiple mini-robots.
 const agents = [
@@ -340,20 +384,20 @@ agents.forEach(a => {
     ).join('');
     card.innerHTML = `
       <div class="status-dot" id="dot-${a.id}"></div>
+      <div class="agent-icon-wrap status-idle" id="glow-${a.id}">${getAgentIcon(a.name)}</div>
       <div class="team-row">${canvasesHtml}</div>
       <div class="w-name">${a.name}</div>
       <div class="w-num">${a.num}</div>
       <div class="w-task" id="task-${a.id}">${a.task}</div>
-      <div class="act-wrap"><div class="act-bar" id="bar-${a.id}"></div></div>
     `;
   } else {
     card.innerHTML = `
       <div class="status-dot" id="dot-${a.id}"></div>
-      <canvas id="cv-${a.id}" width="54" height="64"></canvas>
+      <div class="agent-icon-wrap status-idle" id="glow-${a.id}">${getAgentIcon(a.name)}</div>
+      <canvas id="cv-${a.id}" width="44" height="52"></canvas>
       <div class="w-name">${a.name}</div>
       <div class="w-num">${a.num}</div>
       <div class="w-task" id="task-${a.id}">${a.task}</div>
-      <div class="act-wrap"><div class="act-bar" id="bar-${a.id}"></div></div>
     `;
   }
   grid.appendChild(card);
@@ -523,7 +567,7 @@ function animate(t) {
 animate(0);
 
 // ── STATE UPDATES ──
-function setAgent(id, active, task) {
+function setAgent(id, active, task, status) {
   const a = agents[id-1];
   if (!a) return;
   a.active = active;
@@ -531,14 +575,20 @@ function setAgent(id, active, task) {
 
   const dot = document.getElementById(`dot-${id}`);
   const taskEl = document.getElementById(`task-${id}`);
-  const bar = document.getElementById(`bar-${id}`);
+  const glow = document.getElementById(`glow-${id}`);
 
   if (dot) dot.className = 'status-dot' + (active ? ' on' : '');
   if (taskEl) {
     taskEl.textContent = task;
     taskEl.className = 'w-task' + (active ? ' active-task' : '');
   }
-  if (bar) bar.className = 'act-bar' + (active ? ' running' : '');
+  if (glow) {
+    const glowStatus = status === 'error' ? 'status-error'
+      : status === 'offline' ? 'status-offline'
+      : active ? 'status-active'
+      : 'status-idle';
+    glow.className = 'agent-icon-wrap ' + glowStatus;
+  }
 
   updateCount();
   updateTicker();
@@ -574,60 +624,84 @@ setInterval(()=>{
     String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
 },1000);
 
-// ── LOAD REAL STATUS FROM status.json ──
-function loadStatus() {
-  fetch('./status.json?t=' + Date.now())
+// ── UPDATE AI BUILDERS FROM API DATA ──
+function updateBuilders(buildersData) {
+  if (!buildersData) return;
+  builders.forEach(b => {
+    const bData = buildersData[b.id];
+    if (!bData) return;
+    const dot = document.getElementById(`bdot-${b.id}`);
+    const taskEl = document.getElementById(`btask-${b.id}`);
+    const active = bData.status === 'active';
+    if (dot) {
+      if (active) {
+        dot.style.background = '#00ff88';
+        dot.style.boxShadow = '0 0 4px #00ff88';
+        dot.style.animation = 'sdp 1.5s infinite';
+      } else {
+        dot.style.background = '#333';
+        dot.style.boxShadow = 'none';
+        dot.style.animation = 'none';
+      }
+    }
+    if (taskEl) taskEl.textContent = active ? '⚙️ ' + (bData.task || 'Working') : '💤 Idle';
+  });
+}
+
+// ── POLL /api/status EVERY 2 SECONDS ──
+function pollStatus() {
+  fetch('/api/status')
     .then(r => r.json())
     .then(data => {
       // Update secretary
       if (data.subagent) updateSecretary(data);
+
+      // Update agents
       const list = Array.isArray(data) ? data : (data.agents || []);
       list.forEach((item, i) => {
         if (i >= agents.length) return;
         const active = item.status === 'active';
-        const task = item.task || (active ? '⚙️ Task' : '💤 Idle');
-        setAgent(i + 1, active, active ? '⚙️ ' + task : '💤 Idle');
+        const errored = item.status === 'error';
+        const offline = item.status === 'offline';
+        const task = item.task || (active ? '⚙️ Task' : errored ? '❌ Error' : '💤 Idle');
+        setAgent(i + 1, active, active ? task : (errored ? '❌ Error' : '💤 Idle'), item.status || 'idle');
       });
+
+      // Update AI builders
+      if (data.builders) updateBuilders(data.builders);
+
+      // Update activity log
+      if (Array.isArray(data.activity)) renderActivity(data.activity);
     })
-    .catch(() => {
-      // Fallback defaults
-      setAgent(1, true, '🦞 Patrolling Moltbook');
-      setAgent(2, true, '🌐 Surfing the web');
-      setAgent(3, true, '📊 Processing documents');
-      setAgent(4, true, '⚙️ Web crawl');
-      setAgent(5, true, '₿ Trading crypto');
-      setAgent(6, true, '📋 Analyzing market');
-    });
+    .catch(() => {});
 }
 
-// Initial load + refresh every 30 sec
-loadStatus();
-setInterval(loadStatus, 30000);
+// Start polling every 2 seconds
+pollStatus();
+setInterval(pollStatus, 2000);
 
 // ── SECRETARY SUB-AGENT ──
 function updateSecretary(data) {
   const secTask = document.getElementById('sec-task');
-  const secBar = document.getElementById('sec-bar');
+  const secGlow = document.getElementById('glow-sec');
   if (!secTask) return;
   const sub = data && data.subagent;
   if (sub && sub.status === 'active') {
     secTask.textContent = '⚙️ ' + (sub.task || 'Working');
     secTask.style.color = '#aa66ff';
-    let w = 0;
-    const iv = setInterval(() => { w = (w + 3) % 100; if(secBar) secBar.style.width = w + '%'; }, 150);
-    setTimeout(() => clearInterval(iv), 10000);
+    if (secGlow) secGlow.className = 'agent-icon-wrap status-active';
   } else {
     secTask.textContent = '💤 Waiting for task';
     secTask.style.color = '#667799';
-    if (secBar) secBar.style.width = '0%';
+    if (secGlow) secGlow.className = 'agent-icon-wrap status-idle';
   }
 }
 
 window.setSecretaryTask = function(task) {
   const el = document.getElementById('sec-task');
-  const bar = document.getElementById('sec-bar');
+  const glow = document.getElementById('glow-sec');
   if (el) { el.textContent = '⚙️ ' + task; el.style.color = '#aa66ff'; }
-  if (bar) { bar.style.width = '75%'; }
+  if (glow) glow.className = 'agent-icon-wrap status-active';
 };
 
 // ── ACTIVITY LOG ──
@@ -683,22 +757,7 @@ function renderActivity(entries) {
   if (entries.length > 0) lastActivityTs = entries[0].ts;
 }
 
-function loadActivity() {
-  fetch('./activity.json?t=' + Date.now())
-    .then(r => r.json())
-    .then(data => {
-      if (Array.isArray(data)) renderActivity(data);
-    })
-    .catch(() => {
-      fetch('./status.json?t=' + Date.now())
-        .then(r => r.json())
-        .then(d => { if (Array.isArray(d.activity)) renderActivity(d.activity); })
-        .catch(() => {});
-    });
-}
-
-loadActivity();
-setInterval(loadActivity, 5000);
+// Activity is now loaded as part of pollStatus() every 2 seconds
 
 </script>
 </body>
