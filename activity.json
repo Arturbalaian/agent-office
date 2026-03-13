@@ -1,5 +1,10 @@
 [
   {
+    "ts": "15:19",
+    "agent": "KRAKEN",
+    "msg": "🔍 17 signals: ACXUSD SELL, ALICEUSD BUY, BANANAS31USD SELL, CATUSD SELL, FOLKSUSD BUY +12 more"
+  },
+  {
     "ts": "15:14",
     "agent": "KRAKEN",
     "msg": "🔍 17 signals: ACXUSD SELL, ALICEUSD BUY, BANANAS31USD SELL, CATUSD SELL, FOLKSUSD BUY +12 more"
@@ -143,10 +148,5 @@
     "ts": "13:24",
     "agent": "KRAKEN",
     "msg": "🔍 15 signals: AI3USD BUY, ALICEUSD SELL, ALTHEAUSD SELL, ANONUSD SELL, BANANAS31USD SELL +10 more"
-  },
-  {
-    "ts": "13:20",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: ZROUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
   }
 ]
