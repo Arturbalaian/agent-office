@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:58:02.801Z",
+  "updated": "2026-03-13T19:58:35.944Z",
   "subagent": {
     "status": "active",
     "task": "Чинит Robo-8: запрет SELL без позиции"
@@ -56,31 +56,5 @@
       "task": "KRAKEN — крипто-команда 24/7"
     }
   ],
-  "activity": [
-    {
-      "ts": "12:56",
-      "agent": "KRAKEN",
-      "msg": "✅ Bought CHRUSD $0.01591"
-    },
-    {
-      "ts": "12:56",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: CHEXUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-    },
-    {
-      "ts": "12:56",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: CAMPUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-    },
-    {
-      "ts": "12:56",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: AVAAIUSD — Kraken: EAccount:Invalid permissions:AVAAI trading restricted for US:CA."
-    },
-    {
-      "ts": "12:56",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: AI3USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-    }
-  ]
+  "activity": []
 }
