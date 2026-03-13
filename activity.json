@@ -1,5 +1,10 @@
 [
   {
+    "ts": "14:34",
+    "agent": "KRAKEN",
+    "msg": "🔍 23 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +18 more"
+  },
+  {
     "ts": "14:29",
     "agent": "KRAKEN",
     "msg": "🔍 20 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +15 more"
@@ -143,10 +148,5 @@
     "ts": "13:19",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "13:15",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: ZROUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
   }
 ]
