@@ -1,5 +1,145 @@
 [
   {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: RETARDIOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: PACKUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: OSMOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: NYMUSD — Kraken: EAccount:Invalid permissions:NYM trading restricted for US:CA."
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: MIMUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: LCAPUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: GWEIUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: EGLDUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "✅ Bought CHRUSD $0.01591"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: CAMPUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: AVAAIUSD — Kraken: EAccount:Invalid permissions:AVAAI trading restricted for US:CA."
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: AI3USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:46",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: AEVOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "🔍 26 signals: AEVOUSD BUY, AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, BOSUSD SELL +21 more"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought PACKUSD $0.009882"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought OSMOUSD $0.03391"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought NYMUSD $0.02438"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought LCAPUSD $6.275"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought GWEIUSD $0.046898"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought EGLDUSD $4.19"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought CHRUSD $0.01591"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought CAMPUSD $0.002844"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought AVAAIUSD $0.00761"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought AI3USD $0.00931"
+  },
+  {
+    "ts": "12:45",
+    "agent": "KRAKEN",
+    "msg": "✅ [DRY] Bought AEVOUSD $0.02584"
+  },
+  {
+    "ts": "12:44",
+    "agent": "KRAKEN",
+    "msg": "🔍 24 signals: AEVOUSD BUY, AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, BOSUSD SELL +19 more"
+  },
+  {
     "ts": "12:41",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: VOOIUSD — Kraken: EAccount:Invalid permissions:VOOI trading restricted for US:CA."
@@ -8,140 +148,5 @@
     "ts": "12:41",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: TEAUSD — Kraken: EAccount:Invalid permissions:TEA trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: SDNUSD — Kraken: EAccount:Invalid permissions:SDN trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: PUFFERUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: PACKUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: OSMOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: ODOSUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: NYMUSD — Kraken: EAccount:Invalid permissions:NYM trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: MIMUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: LIONUSD — Kraken: EAccount:Invalid permissions:LION trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: GWEIUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: EGLDUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: DMCUSD — Kraken: EAccount:Invalid permissions:DMC trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "✅ Bought CHRUSD $0.01592"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: CATUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: CAMPUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: C98USD — Kraken: EAccount:Invalid permissions:C98 trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: BOSUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: BANANAS31USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: AVAAIUSD — Kraken: EAccount:Invalid permissions:AVAAI trading restricted for US:CA."
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: AI3USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:41",
-    "agent": "KRAKEN",
-    "msg": "🔍 21 signals: AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, BOSUSD SELL, C98USD SELL +16 more"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "💰 Closed BOSUSD +0.00% = +$0.00"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "💰 Closed BOSUSD +0.00% = +$0.00"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "💰 Closed BOSUSD -0.16% = +$0.00"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "💰 Closed BOSUSD -0.16% = +$0.00"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:40",
-    "agent": "KRAKEN",
-    "msg": "💰 Closed COQUSD -3.12% = +$0.05"
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:44:03.499Z",
+  "updated": "2026-03-13T19:46:41.564Z",
   "subagent": {
     "status": "active",
     "task": "Чинит Robo-8: запрет SELL без позиции"
@@ -58,29 +58,29 @@
   ],
   "activity": [
     {
-      "ts": "12:41",
+      "ts": "12:46",
       "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: VOOIUSD — Kraken: EAccount:Invalid permissions:VOOI trading restricted for US:CA."
+      "msg": "⚠️ Order failed: RETARDIOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
     },
     {
-      "ts": "12:41",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: TEAUSD — Kraken: EAccount:Invalid permissions:TEA trading restricted for US:CA."
-    },
-    {
-      "ts": "12:41",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: SDNUSD — Kraken: EAccount:Invalid permissions:SDN trading restricted for US:CA."
-    },
-    {
-      "ts": "12:41",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: PUFFERUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-    },
-    {
-      "ts": "12:41",
+      "ts": "12:46",
       "agent": "KRAKEN",
       "msg": "⚠️ Order failed: PACKUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+    },
+    {
+      "ts": "12:46",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: OSMOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+    },
+    {
+      "ts": "12:46",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: NYMUSD — Kraken: EAccount:Invalid permissions:NYM trading restricted for US:CA."
+    },
+    {
+      "ts": "12:46",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: MIMUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
     }
   ]
 }
