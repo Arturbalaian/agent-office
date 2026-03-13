@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:02:03.295Z",
+  "updated": "2026-03-13T19:04:58.621Z",
   "subagent": {
     "status": "idle",
     "task": "Ожидание задачи"
@@ -27,8 +27,8 @@
     },
     {
       "name": "Robo-5",
-      "status": "active",
-      "task": "KRAKEN — крипто-команда 24/7"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-6",
@@ -37,8 +37,8 @@
     },
     {
       "name": "Robo-7",
-      "status": "active",
-      "task": "КАЛШИ — торгует prediction markets"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-8",
@@ -48,12 +48,12 @@
     {
       "name": "Robo-9",
       "status": "active",
-      "task": "📊 Анализ Kalshi рынков"
+      "task": "КАЛШИ — prediction markets 24/7"
     },
     {
       "name": "Robo-10",
       "status": "active",
-      "task": "💰 Kalshi трейдинг"
+      "task": "KRAKEN — крипто-команда 24/7"
     }
   ],
   "activity": [
