@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T20:03:01.899Z",
+  "updated": "2026-03-13T20:05:01.899Z",
   "subagent": {
     "status": "active",
     "task": "Чинит Robo-8: запрет SELL без позиции"
@@ -56,5 +56,11 @@
       "task": "KRAKEN — крипто-команда 24/7"
     }
   ],
-  "activity": []
+  "activity": [
+    {
+      "ts": "13:04",
+      "agent": "KRAKEN",
+      "msg": "🔍 15 signals: AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, CATUSD SELL, DMCUSD SELL +10 more"
+    }
+  ]
 }
