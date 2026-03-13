@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T17:21:14.101Z",
+  "updated": "2026-03-13T17:25:57.916Z",
   "agents": [
     {
       "name": "Robo-1",
@@ -43,13 +43,13 @@
     },
     {
       "name": "Robo-9",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "📊 Анализ Kalshi рынков"
     },
     {
       "name": "Robo-10",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "💰 Kalshi трейдинг"
     }
   ]
 }
