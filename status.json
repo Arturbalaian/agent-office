@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T17:45:22.597Z",
+  "updated": "2026-03-13T17:45:59.750Z",
   "subagent": {
-    "status": "active",
-    "task": "Делегирует DS-160 -> Robo-3"
+    "status": "idle",
+    "task": "Ожидание задачи"
   },
   "agents": [
     {
@@ -17,8 +17,8 @@
     },
     {
       "name": "Robo-3",
-      "status": "active",
-      "task": "Заполняет DS-160 v2"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-4",
