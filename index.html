@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>🏢 Agent Office HQ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #07071a;
+    color: #00ff88;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  .header {
+    text-align: center;
+    padding: 6px 12px;
+    background: #0d0d2b;
+    border-bottom: 2px solid #00ff88;
+    font-size: 13px;
+    letter-spacing: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-title { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+  .header-right { font-size: 11px; color: #8888aa; }
+  .live-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: #ff4444;
+    border-radius: 50%;
+    animation: livepulse 1s infinite;
+    margin-right: 4px;
+  }
+  @keyframes livepulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+  /* Grid layout */
+  .office-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    height: calc(100vh - 100px);
+  }
+
+  /* Room */
+  .room {
+    border: 1px solid #1a2a4a;
+    border-radius: 4px;
+    background: #0a0a20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 8px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .room:hover { border-color: #00ff8866; }
+
+  /* Room label */
+  .room-label {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 8px;
+    color: #444466;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Director room special */
+  .room-director {
+    grid-column: 2;
+    grid-row: 1;
+    border-color: #ff6b6b44;
+    background: #120a1a;
+  }
+  .room-director .room-label { color: #ff6b6b88; }
+
+  /* Status bubble */
+  .status-bubble {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d0d2b;
+    border: 1px solid #00ff8866;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 9px;
+    color: #00ffcc;
+    white-space: nowrap;
+    max-width: 150px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .status-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 3px solid transparent;
+    border-top-color: #00ff8866;
+  }
+
+  /* Pixel character */
+  .pixel-char {
+    display: flex;
+    flex-direction: column;
+    image-rendering: pixelated;
+    margin-bottom: 4px;
+  }
+  .pixel-row { display: flex; }
+  .px { width: 7px; height: 7px; display: inline-block; }
+
+  /* Colors */
+  .c0 { background: transparent; }
+  .c1 { background: #ffcc88; }
+  .c2 { background: #2244cc; }
+  .c3 { background: #111133; }
+  .c4 { background: #cc2222; }
+  .c5 { background: #ffff00; }
+  .c6 { background: #eeeeee; }
+  .c7 { background: #00cc66; }
+  .c8 { background: #553300; }
+  .c9 { background: #ff88aa; }
+  .ca { background: #888899; }
+  .cb { background: #ff8800; }
+  .cc { background: #8822cc; }
+  .cd { background: #0088ff; }
+  .ce { background: #44cc44; }
+  .cf { background: #cc8833; }
+
+  @keyframes blink { 0%,88%,100%{transform:scaleY(1);} 93%{transform:scaleY(0.15);} }
+  .eyes { animation: blink 3.5s infinite; display:inline-block; transform-origin: center; }
+  @keyframes wobble { 0%,100%{transform:rotate(0deg);} 30%{transform:rotate(1.5deg);} 70%{transform:rotate(-1.5deg);} }
+
+  /* Desk */
+  .desk {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .desk-surface {
+    background: #3d2b1a;
+    border: 1px solid #5c3d1e;
+    border-bottom: 3px solid #2a1a0a;
+    width: 90%;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 3px 6px;
+    border-radius: 1px;
+  }
+  .desk-leg { background: #2a1a0a; height: 4px; width: 80%; }
+
+  /* Monitor */
+  .monitor-wrap { display: flex; flex-direction: column; align-items: center; }
+  .monitor-body {
+    background: #1a1a3a;
+    border: 2px solid #334;
+    width: 44px; height: 28px;
+    overflow: hidden;
+    border-radius: 1px;
+  }
+  .monitor-screen { background: #000418; width:100%; height:100%; padding: 2px; }
+  .mline {
+    height: 3px; margin-bottom: 2px; border-radius: 1px;
+    animation: mtype 1.5s ease-in-out infinite;
+  }
+  @keyframes mtype { 0%{width:0%} 60%{width:100%} 100%{width:0%} }
+  .monitor-neck { width: 6px; height: 6px; background: #334; margin: 0 auto; }
+  .monitor-foot { width: 24px; height: 3px; background: #334; border-radius: 1px; }
+
+  /* Agent name */
+  .agent-info { text-align: center; margin-top: 4px; }
+  .agent-name { font-size: 10px; font-weight: bold; color: #ffff88; text-shadow: 0 0 6px #ffff8888; letter-spacing: 1px; }
+  .agent-role { font-size: 8px; color: #8888aa; margin-top: 1px; }
+
+  /* Cursor blink */
+  .cursor { display:inline-block; width:5px; height:9px; background:#00ff88; animation: cblink 1s step-end infinite; vertical-align:bottom; margin-left:1px; }
+  @keyframes cblink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+  /* Stars window */
+  .window-decor {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 36px; height: 30px;
+    background: #000828;
+    border: 1px solid #223;
+    overflow: hidden;
+  }
+  .star { position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; animation: tw 2s infinite; }
+  @keyframes tw { 0%,100%{opacity:1} 50%{opacity:0.1} }
+
+  /* Floor */
+  .floor-line {
+    position: absolute;
+    bottom: 28px; left: 0; right: 0; height: 2px;
+    background: #1a2a5a; box-shadow: 0 0 8px #1a2a5a;
+  }
+
+  /* Plant */
+  .plant { font-size: 16px; position: absolute; bottom: 6px; }
+
+  /* Offline room */
+  .room-offline { opacity: 0.4; }
+  .offline-badge {
+    position: absolute;
+    top: 24px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: #ff6b6b;
+    background: #200;
+    border: 1px solid #ff6b6b44;
+    padding: 2px 6px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  /* Ticker */
+  .ticker {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 38px;
+    background: #0d0d2b;
+    border-top: 2px solid #00ff88;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .ticker-tag {
+    background: #00ff88;
+    color: #07071a;
+    font-weight: bold;
+    font-size: 10px;
+    padding: 0 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    letter-spacing: 1px;
+  }
+  .ticker-scroll {
+    display: flex;
+    animation: scrolltick 50s linear infinite;
+    white-space: nowrap;
+    font-size: 10px;
+    color: #00ffcc;
+  }
+  @keyframes scrolltick { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ti { margin: 0 30px; }
+  .ti::before { content: '▶ '; color: #ff6b6b; }
+
+  /* Clock */
+  .clock-display {
+    position: absolute;
+    top: 7px; right: 12px;
+    font-size: 10px;
+    color: #ffff44;
+    text-shadow: 0 0 6px #ffff4488;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🏢 AGENT OFFICE HQ</div>
+  <div style="color:#ffff44;font-size:12px;letter-spacing:2px">КОМАНДА АРТУРА</div>
+  <div class="header-right"><span class="live-dot"></span>LIVE &nbsp;|&nbsp; <span id="clock">--:--:--</span></div>
+</div>
+
+<div class="office-grid">
+
+  <!-- Артур — Директор (центр верхний ряд) -->
+  <div class="room room-director" id="room-artur">
+    <div class="room-label">👑 Директор</div>
+    <div class="window-decor">
+      <div class="star" style="top:4px;left:6px;animation-delay:0s"></div>
+      <div class="star" style="top:14px;left:22px;animation-delay:0.7s"></div>
+      <div class="star" style="top:22px;left:10px;animation-delay:1.3s"></div>
+    </div>
+    <div class="status-bubble" id="sb-artur">😴 sleeping...</div>
+
+    <div class="floor-line"></div>
+    <div class="plant" style="left:6px">🌴</div>
+
+    <div style="animation: wobble 5s infinite; animation-delay:0.3s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px c8"></span><span class="px c8"></span><span class="px c8"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c1"></span><span class="px c1"></span><span class="px c1"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c3 eyes"></span><span class="px c1"></span><span class="px c3 eyes"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c1"></span><span class="px c9"></span><span class="px c1"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c4"></span><span class="px c4"></span><span class="px c4"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c4"></span><span class="px c5"></span><span class="px c4"></span><span class="px c5"></span><span class="px c4"></span></div>
+        <div class="pixel-row"><span class="px c4"></span><span class="px c4"></span><span class="px c4"></span><span class="px c4"></span><span class="px c4"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface" style="width:95%">
+        <div class="monitor-wrap">
+          <div class="monitor-body" style="width:52px;height:32px">
+            <div class="monitor-screen">
+              <div class="mline" style="background:#ff6b6b;width:70%"></div>
+              <div class="mline" style="background:#ffff44;width:50%;animation-delay:.3s"></div>
+              <div class="mline" style="background:#ff6b6b;width:80%;animation-delay:.6s"></div>
+              <div class="mline" style="background:#ffff44;width:35%;animation-delay:.9s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:13px">☕</span>
+        <span style="font-size:11px">📱</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">АРТУР</div>
+      <div class="agent-role">👑 Директор / Владелец</div>
+    </div>
+  </div>
+
+  <!-- Робочеловек — левый верхний -->
+  <div class="room" id="room-robot" style="grid-column:1;grid-row:1">
+    <div class="room-label">🤖 Главный агент</div>
+    <div class="status-bubble" id="sb-robot">🤖 слушаю директора<span class="cursor"></span></div>
+    <div class="floor-line"></div>
+
+    <div style="animation: wobble 4s infinite; animation-delay:1s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px c7"></span><span class="px c7"></span><span class="px c7"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c7"></span><span class="px ca"></span><span class="px ca"></span><span class="px ca"></span><span class="px c7"></span></div>
+        <div class="pixel-row"><span class="px c7"></span><span class="px c5 eyes"></span><span class="px ca"></span><span class="px c5 eyes"></span><span class="px c7"></span></div>
+        <div class="pixel-row"><span class="px c7"></span><span class="px ca"></span><span class="px c7"></span><span class="px ca"></span><span class="px c7"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c2"></span><span class="px c2"></span><span class="px c2"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c2"></span><span class="px c6"></span><span class="px c2"></span><span class="px c6"></span><span class="px c2"></span></div>
+        <div class="pixel-row"><span class="px c2"></span><span class="px c2"></span><span class="px c2"></span><span class="px c2"></span><span class="px c2"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px ca"></span><span class="px c0"></span><span class="px ca"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px ca"></span><span class="px c0"></span><span class="px ca"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface">
+        <div class="monitor-wrap">
+          <div class="monitor-body">
+            <div class="monitor-screen">
+              <div class="mline" style="background:#00ff88;animation-duration:.8s"></div>
+              <div class="mline" style="background:#00ffcc;width:60%;animation-delay:.2s;animation-duration:1.1s"></div>
+              <div class="mline" style="background:#00ff88;animation-delay:.4s;animation-duration:.9s"></div>
+              <div class="mline" style="background:#fff;width:40%;animation-delay:.7s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:10px">💬<br>📋</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">РОБОЧЕЛОВЕК</div>
+      <div class="agent-role">🤖 Главный агент (я)</div>
+    </div>
+  </div>
+
+  <!-- Молтбот — правый верхний -->
+  <div class="room" id="room-moltbot" style="grid-column:3;grid-row:1">
+    <div class="room-label">🦞 Молтбот</div>
+    <div class="status-bubble" id="sb-moltbot">🦞 патрулирует Moltbook<span class="cursor"></span></div>
+    <div class="floor-line"></div>
+
+    <div style="animation: wobble 6s infinite; animation-delay:2s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px cc"></span><span class="px cc"></span><span class="px cc"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px cc"></span><span class="px c1"></span><span class="px c1"></span><span class="px c1"></span><span class="px cc"></span></div>
+        <div class="pixel-row"><span class="px cc"></span><span class="px c3 eyes"></span><span class="px c1"></span><span class="px c3 eyes"></span><span class="px cc"></span></div>
+        <div class="pixel-row"><span class="px cc"></span><span class="px c1"></span><span class="px c9"></span><span class="px c1"></span><span class="px cc"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px cc"></span><span class="px cc"></span><span class="px cc"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px cc"></span><span class="px c6"></span><span class="px cc"></span><span class="px c6"></span><span class="px cc"></span></div>
+        <div class="pixel-row"><span class="px cc"></span><span class="px cc"></span><span class="px cc"></span><span class="px cc"></span><span class="px cc"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface">
+        <div class="monitor-wrap">
+          <div class="monitor-body">
+            <div class="monitor-screen" style="background:#100020">
+              <div class="mline" style="background:#cc44ff;animation-duration:1.2s"></div>
+              <div class="mline" style="background:#ff88ff;width:60%;animation-delay:.4s;animation-duration:.9s"></div>
+              <div class="mline" style="background:#cc44ff;width:80%;animation-delay:.7s;animation-duration:1.4s"></div>
+              <div class="mline" style="background:#fff;width:30%;animation-delay:.9s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:11px">🦞</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">МОЛТБОТ</div>
+      <div class="agent-role">🦞 Moltbook агент</div>
+    </div>
+  </div>
+
+  <!-- Браузер — нижний левый -->
+  <div class="room" id="room-browser" style="grid-column:1;grid-row:2">
+    <div class="room-label">🌐 Веб-разведчик</div>
+    <div class="status-bubble" id="sb-browser">🌐 ожидает задачи...</div>
+    <div class="floor-line"></div>
+
+    <div style="animation: wobble 4.5s infinite; animation-delay:0.7s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px c8"></span><span class="px c8"></span><span class="px c8"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c1"></span><span class="px c1"></span><span class="px c1"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c3 eyes"></span><span class="px c1"></span><span class="px c3 eyes"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c8"></span><span class="px c1"></span><span class="px c6"></span><span class="px c1"></span><span class="px c8"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px cd"></span><span class="px cd"></span><span class="px cd"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px cd"></span><span class="px c6"></span><span class="px cd"></span><span class="px c6"></span><span class="px cd"></span></div>
+        <div class="pixel-row"><span class="px cd"></span><span class="px cd"></span><span class="px cd"></span><span class="px cd"></span><span class="px cd"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface">
+        <div class="monitor-wrap">
+          <div class="monitor-body" style="width:48px;height:30px">
+            <div class="monitor-screen" style="background:#000820">
+              <div style="height:3px;background:#223;display:flex;gap:1px;padding:0 1px;align-items:center;">
+                <div style="width:3px;height:2px;background:#ff4444;border-radius:50%"></div>
+                <div style="width:3px;height:2px;background:#ffff00;border-radius:50%"></div>
+                <div style="width:3px;height:2px;background:#00ff88;border-radius:50%"></div>
+              </div>
+              <div class="mline" style="background:#4488ff;animation-duration:2s"></div>
+              <div class="mline" style="background:#ffffff44;width:60%;animation-delay:.5s;animation-duration:2.5s"></div>
+              <div class="mline" style="background:#4488ff;width:70%;animation-delay:1s;animation-duration:1.8s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:11px">📡</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">БРАУЗЕР</div>
+      <div class="agent-role">🌐 Веб-разведчик</div>
+    </div>
+  </div>
+
+  <!-- Кодер — нижний центр -->
+  <div class="room" id="room-coder" style="grid-column:2;grid-row:2">
+    <div class="room-label">💻 Кодер</div>
+    <div class="status-bubble" id="sb-coder">💻 ожидает задачи...</div>
+    <div class="floor-line"></div>
+
+    <div style="animation: wobble 5.5s infinite; animation-delay:1.5s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c3"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c3"></span><span class="px ca"></span><span class="px ca"></span><span class="px ca"></span><span class="px c3"></span></div>
+        <div class="pixel-row"><span class="px c3"></span><span class="px cd eyes"></span><span class="px ca"></span><span class="px cd eyes"></span><span class="px c3"></span></div>
+        <div class="pixel-row"><span class="px c3"></span><span class="px ca"></span><span class="px c3"></span><span class="px ca"></span><span class="px c3"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px ce"></span><span class="px ce"></span><span class="px ce"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px ce"></span><span class="px c5"></span><span class="px ce"></span><span class="px c5"></span><span class="px ce"></span></div>
+        <div class="pixel-row"><span class="px ce"></span><span class="px ce"></span><span class="px ce"></span><span class="px ce"></span><span class="px ce"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface">
+        <div class="monitor-wrap">
+          <div class="monitor-body">
+            <div class="monitor-screen" style="background:#001a00">
+              <div class="mline" style="background:#00ff44;animation-duration:.6s"></div>
+              <div class="mline" style="background:#00cc33;width:80%;animation-delay:.15s;animation-duration:.8s"></div>
+              <div class="mline" style="background:#00ff44;width:50%;animation-delay:.3s;animation-duration:.7s"></div>
+              <div class="mline" style="background:#00cc33;animation-delay:.45s;animation-duration:.9s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:11px">⌨️</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">КОДЕР</div>
+      <div class="agent-role">💻 Разработчик</div>
+    </div>
+  </div>
+
+  <!-- Архивариус — нижний правый -->
+  <div class="room" id="room-archive" style="grid-column:3;grid-row:2">
+    <div class="room-label">📋 Архивариус</div>
+    <div class="status-bubble" id="sb-archive">📋 ожидает задачи...</div>
+    <div class="floor-line"></div>
+    <div class="plant" style="right:6px">🌿</div>
+
+    <div style="animation: wobble 7s infinite; animation-delay:3s">
+      <div class="pixel-char">
+        <div class="pixel-row"><span class="px c0"></span><span class="px cf"></span><span class="px cf"></span><span class="px cf"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px cf"></span><span class="px c1"></span><span class="px c1"></span><span class="px c1"></span><span class="px cf"></span></div>
+        <div class="pixel-row"><span class="px cf"></span><span class="px c8 eyes"></span><span class="px c1"></span><span class="px c8 eyes"></span><span class="px cf"></span></div>
+        <div class="pixel-row"><span class="px cf"></span><span class="px c1"></span><span class="px c6"></span><span class="px c1"></span><span class="px cf"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c6"></span><span class="px c6"></span><span class="px c6"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c6"></span><span class="px cf"></span><span class="px c6"></span><span class="px cf"></span><span class="px c6"></span></div>
+        <div class="pixel-row"><span class="px c6"></span><span class="px c6"></span><span class="px c6"></span><span class="px c6"></span><span class="px c6"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+        <div class="pixel-row"><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span><span class="px c3"></span><span class="px c0"></span></div>
+      </div>
+    </div>
+    <div class="desk">
+      <div class="desk-surface">
+        <div class="monitor-wrap">
+          <div class="monitor-body">
+            <div class="monitor-screen" style="background:#0a0820">
+              <div class="mline" style="background:#ffaa44;animation-duration:2s"></div>
+              <div class="mline" style="background:#ff8822;width:75%;animation-delay:.6s;animation-duration:2.2s"></div>
+              <div class="mline" style="background:#ffaa44;width:50%;animation-delay:1.2s;animation-duration:1.8s"></div>
+            </div>
+          </div>
+          <div class="monitor-neck"></div>
+          <div class="monitor-foot"></div>
+        </div>
+        <span style="font-size:11px">📁</span>
+      </div>
+      <div class="desk-leg"></div>
+    </div>
+    <div class="agent-info">
+      <div class="agent-name">АРХИВАРИУС</div>
+      <div class="agent-role">📋 Память и отчёты</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-tag">📡 ЭФИР</div>
+  <div class="ticker-scroll">
+    <span class="ti">Команда сформирована — 5 агентов на посту</span>
+    <span class="ti">Молтбот автономен — проверка каждый час</span>
+    <span class="ti">Директор Артур отдыхает — не беспокоить</span>
+    <span class="ti">Браузер готов к веб-разведке по приказу</span>
+    <span class="ti">Кодер ждёт задачу на разработку</span>
+    <span class="ti">Архивариус готов принять отчёт</span>
+    <span class="ti">Робочеловек на прямой связи с директором</span>
+    <span class="ti">Moltbook карма: 4 | Уведомлений: 0</span>
+    <span class="ti">Команда сформирована — 5 агентов на посту</span>
+    <span class="ti">Молтбот автономен — проверка каждый час</span>
+    <span class="ti">Директор Артур отдыхает — не беспокоить</span>
+    <span class="ti">Браузер готов к веб-разведке по приказу</span>
+    <span class="ti">Кодер ждёт задачу на разработку</span>
+    <span class="ti">Архивариус готов принять отчёт</span>
+    <span class="ti">Робочеловек на прямой связи с директором</span>
+    <span class="ti">Moltbook карма: 4 | Уведомлений: 0</span>
+  </div>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Status rotations
+  function rotate(id, msgs, ms) {
+    let i = 0;
+    setInterval(() => {
+      i = (i+1) % msgs.length;
+      const el = document.getElementById(id);
+      const hasCursor = !msgs[i].includes('😴') && !msgs[i].includes('ожидает');
+      el.innerHTML = msgs[i] + (hasCursor ? '<span class="cursor"></span>' : '');
+    }, ms);
+  }
+
+  rotate('sb-artur', [
+    '😴 sleeping...', '💤 zzz...', '😴 набирается сил', '💤 отдыхает'
+  ], 9000);
+
+  rotate('sb-robot', [
+    '🤖 слушаю директора',
+    '💬 готов к делегированию',
+    '📋 мониторю задачи',
+    '⚡ heartbeat активен',
+    '🤖 жду команды Артура',
+  ], 5000);
+
+  rotate('sb-moltbot', [
+    '🦞 патрулирует Moltbook',
+    '📰 читает ленту',
+    '💬 пишет комментарий',
+    '👍 апвоутит посты',
+    '🦞 проверяет уведомления',
+  ], 6000);
+
+  rotate('sb-browser', [
+    '🌐 ожидает задачи...',
+    '🌐 готов к разведке',
+    '📡 мониторю сигнал',
+  ], 8000);
+
+  rotate('sb-coder', [
+    '💻 ожидает задачи...',
+    '💻 готов писать код',
+    '⌨️ инструменты готовы',
+  ], 10000);
+
+  rotate('sb-archive', [
+    '📋 ожидает задачи...',
+    '📁 архив в порядке',
+    '📋 готов к отчёту',
+  ], 12000);
+</script>
+</body>
+</html>
