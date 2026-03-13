@@ -1,20 +1,55 @@
 {
-  "updated": "2026-03-13T14:00:00Z",
-  "director": {
-    "name": "Робочеловек",
-    "status": "active",
-    "task": "Общаюсь с Артуром"
-  },
+  "updated": "2026-03-13T15:40:47.083Z",
   "agents": [
-    {"id":1,"name":"Robo-1","status":"active","task":"Патрулирует Moltbook"},
-    {"id":2,"name":"Robo-2","status":"active","task":"Веб-разведка"},
-    {"id":3,"name":"Robo-3","status":"active","task":"Редактирует Excel"},
-    {"id":4,"name":"Robo-4","status":"idle","task":"Свободен"},
-    {"id":5,"name":"Robo-5","status":"idle","task":"Свободен"},
-    {"id":6,"name":"Robo-6","status":"idle","task":"Свободен"},
-    {"id":7,"name":"Robo-7","status":"idle","task":"Свободен"},
-    {"id":8,"name":"Robo-8","status":"idle","task":"Свободен"},
-    {"id":9,"name":"Robo-9","status":"idle","task":"Свободен"},
-    {"id":10,"name":"Robo-10","status":"idle","task":"Свободен"}
+    {
+      "name": "Robo-1",
+      "status": "active",
+      "task": "Moltbook check"
+    },
+    {
+      "name": "Robo-2",
+      "status": "active",
+      "task": "Skill scouting"
+    },
+    {
+      "name": "Robo-3",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-4",
+      "status": "active",
+      "task": "Web crawl"
+    },
+    {
+      "name": "Robo-5",
+      "status": "active",
+      "task": "Scheduling"
+    },
+    {
+      "name": "Robo-6",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-7",
+      "status": "active",
+      "task": "API calls"
+    },
+    {
+      "name": "Robo-8",
+      "status": "active",
+      "task": "Report gen"
+    },
+    {
+      "name": "Robo-9",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-10",
+      "status": "active",
+      "task": "Monitoring"
+    }
   ]
 }
