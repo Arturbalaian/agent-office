@@ -1,5 +1,10 @@
 [
   {
+    "ts": "12:55",
+    "agent": "KRAKEN",
+    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
+  },
+  {
     "ts": "12:52",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: CHEXUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
@@ -143,10 +148,5 @@
     "ts": "12:45",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "12:45",
-    "agent": "KRAKEN",
-    "msg": "✅ [DRY] Bought EGLDUSD $4.19"
   }
 ]

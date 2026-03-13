@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:54:02.835Z",
+  "updated": "2026-03-13T19:56:26.879Z",
   "subagent": {
     "status": "active",
     "task": "Чинит Robo-8: запрет SELL без позиции"
@@ -58,6 +58,11 @@
   ],
   "activity": [
     {
+      "ts": "12:55",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
+    },
+    {
       "ts": "12:52",
       "agent": "KRAKEN",
       "msg": "⚠️ Order failed: CHEXUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
@@ -76,11 +81,6 @@
       "ts": "12:52",
       "agent": "KRAKEN",
       "msg": "⚠️ Order failed: AI3USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-    },
-    {
-      "ts": "12:52",
-      "agent": "KRAKEN",
-      "msg": "⚠️ Order failed: AEVOUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
     }
   ]
 }
