@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T19:42:02.667Z",
+  "updated": "2026-03-13T19:44:03.499Z",
   "subagent": {
-    "status": "idle",
-    "task": "Ожидание задачи"
+    "status": "active",
+    "task": "Чинит Robo-8: запрет SELL без позиции"
   },
   "agents": [
     {
@@ -42,13 +42,13 @@
     },
     {
       "name": "Robo-8",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "Ремонт — проверка баланса перед SELL"
     },
     {
       "name": "Robo-9",
       "status": "active",
-      "task": "КАЛШИ — prediction markets 24/7"
+      "task": "KALSHI — prediction markets 24/7"
     },
     {
       "name": "Robo-10",
