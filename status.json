@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T18:08:26.796Z",
+  "updated": "2026-03-13T18:10:03.807Z",
   "subagent": {
-    "status": "idle",
-    "task": "Ожидание задачи"
+    "status": "active",
+    "task": "Строит Robo-7 + Robo-8 (Kraken фьючерсы)"
   },
   "agents": [
     {
@@ -37,13 +37,13 @@
     },
     {
       "name": "Robo-7",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "Инициализация (Kraken аналитик)"
     },
     {
       "name": "Robo-8",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "Инициализация (Kraken трейдер)"
     },
     {
       "name": "Robo-9",
