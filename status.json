@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T18:54:04.363Z",
+  "updated": "2026-03-13T18:57:00.618Z",
   "subagent": {
-    "status": "active",
-    "task": "Реорганизует офисную доску — командные ячейки"
+    "status": "idle",
+    "task": "Ожидание задачи"
   },
   "agents": [
     {
@@ -28,12 +28,12 @@
     {
       "name": "Robo-5",
       "status": "active",
-      "task": "Сканирует шиткоины 24/7"
+      "task": "KRAKEN — крипто-команда 24/7"
     },
     {
       "name": "Robo-6",
-      "status": "active",
-      "task": "Сканирует топ альты 24/7"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-7",
@@ -42,13 +42,13 @@
     },
     {
       "name": "Robo-8",
-      "status": "active",
-      "task": "Trейдер — ждёт сигналов 24/7"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-9",
       "status": "active",
-      "task": "📊 Анализ Kalshi рынков"
+      "task": "КАЛШИ — prediction markets"
     },
     {
       "name": "Robo-10",
