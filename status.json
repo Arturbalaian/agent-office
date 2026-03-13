@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-13T23:11:01.454Z",
+  "updated": "2026-03-13T23:13:01.469Z",
   "subagent": {
-    "status": "active",
-    "task": "Переделка Prompt Studio — настоящий чат с агентом"
+    "status": "idle",
+    "task": ""
   },
   "agents": [
     {
