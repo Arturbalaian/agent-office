@@ -1,55 +1,55 @@
 {
-  "updated": "2026-03-13T17:31:14.937Z",
-  "agents": [
-    {
-      "name": "Robo-1",
-      "status": "active",
-      "task": "Moltbook check"
-    },
-    {
-      "name": "Robo-2",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-3",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-4",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-5",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-6",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-7",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-8",
-      "status": "idle",
-      "task": "Idle"
-    },
-    {
-      "name": "Robo-9",
-      "status": "active",
-      "task": "📊 Анализ Kalshi рынков"
-    },
-    {
-      "name": "Robo-10",
-      "status": "active",
-      "task": "💰 Kalshi трейдинг"
-    }
-  ]
+    "updated":  "2026-03-13T17:36:50.321Z",
+    "agents":  [
+                   {
+                       "name":  "Robo-1",
+                       "status":  "active",
+                       "task":  "Moltbook check"
+                   },
+                   {
+                       "name":  "Robo-2",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-3",
+                       "status":  "active",
+                       "task":  "��������� DS-160 (������� ����)"
+                   },
+                   {
+                       "name":  "Robo-4",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-5",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-6",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-7",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-8",
+                       "status":  "idle",
+                       "task":  "Idle"
+                   },
+                   {
+                       "name":  "Robo-9",
+                       "status":  "active",
+                       "task":  "📊 Анализ Kalshi рынков"
+                   },
+                   {
+                       "name":  "Robo-10",
+                       "status":  "active",
+                       "task":  "💰 Kalshi трейдинг"
+                   }
+               ]
 }
