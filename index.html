@@ -168,17 +168,16 @@ body {
   <!-- MIDDLE ROW -->
   <div class="mid-row">
 
-    <!-- REST -->
-    <div class="zone rest-zone">
-      <div class="zone-label">☕ Отдых</div>
+    <!-- SECRETARY -->
+    <div class="zone rest-zone" style="border-color:#2a1a40;">
+      <div class="zone-label" style="color:#aa66ff;">🤖 Секретарь</div>
       <div class="rest-items">
-        <div class="sofa">🛋️</div>
-        <div class="fridge-row">
-          <span style="font-size:18px">🧊</span>
-          <span style="font-size:14px">🥤🥤</span>
-          <div class="free-tag">FREE</div>
+        <canvas id="sec-canvas" width="60" height="68"></canvas>
+        <div style="font:bold 9px monospace;color:#aa66ff;margin-top:2px;">СУБ-АГЕНТ</div>
+        <div id="sec-task" style="font:7px monospace;color:#667799;text-align:center;max-width:110px;">💤 Ожидание задачи</div>
+        <div style="height:3px;width:100px;background:#1a1a30;border-radius:2px;margin-top:4px;overflow:hidden;">
+          <div id="sec-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#aa66ff,#6644cc);border-radius:2px;transition:width .5s;"></div>
         </div>
-        <div class="food-row">🍕 🍔 🍩</div>
       </div>
     </div>
 
@@ -456,6 +455,39 @@ function loadStatus() {
 // Первый запуск + обновление каждые 30 сек
 loadStatus();
 setInterval(loadStatus, 30000);
+
+// ── SECRETARY SUB-AGENT ──
+const secCanvas = document.getElementById('sec-canvas');
+if (secCanvas) {
+  makeCharScene(secCanvas, 0xaa66ff, 0.85);
+}
+
+// Секретарь читает sub-agent статус из status.json
+function updateSecretary(data) {
+  const secTask = document.getElementById('sec-task');
+  const secBar = document.getElementById('sec-bar');
+  if (!secTask) return;
+  const sub = data && data.subagent;
+  if (sub && sub.status === 'active') {
+    secTask.textContent = '⚙️ ' + (sub.task || 'Работает');
+    secTask.style.color = '#aa66ff';
+    let w = 0;
+    const iv = setInterval(() => { w = (w + 3) % 100; if(secBar) secBar.style.width = w + '%'; }, 150);
+    setTimeout(() => clearInterval(iv), 10000);
+  } else {
+    secTask.textContent = '💤 Ожидание задачи';
+    secTask.style.color = '#667799';
+    if (secBar) secBar.style.width = '0%';
+  }
+}
+
+// Expose для обновления секретаря снаружи
+window.setSecretaryTask = function(task) {
+  const el = document.getElementById('sec-task');
+  const bar = document.getElementById('sec-bar');
+  if (el) { el.textContent = '⚙️ ' + task; el.style.color = '#aa66ff'; }
+  if (bar) { bar.style.width = '75%'; }
+};
 
 </script>
 </body>
