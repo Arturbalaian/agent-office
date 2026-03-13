@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:40:02.893Z",
+  "updated": "2026-03-13T19:42:02.667Z",
   "subagent": {
     "status": "idle",
     "task": "Ожидание задачи"
@@ -56,5 +56,31 @@
       "task": "KRAKEN — крипто-команда 24/7"
     }
   ],
-  "activity": []
+  "activity": [
+    {
+      "ts": "12:41",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: VOOIUSD — Kraken: EAccount:Invalid permissions:VOOI trading restricted for US:CA."
+    },
+    {
+      "ts": "12:41",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: TEAUSD — Kraken: EAccount:Invalid permissions:TEA trading restricted for US:CA."
+    },
+    {
+      "ts": "12:41",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: SDNUSD — Kraken: EAccount:Invalid permissions:SDN trading restricted for US:CA."
+    },
+    {
+      "ts": "12:41",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: PUFFERUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+    },
+    {
+      "ts": "12:41",
+      "agent": "KRAKEN",
+      "msg": "⚠️ Order failed: PACKUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
+    }
+  ]
 }
