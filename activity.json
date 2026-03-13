@@ -1,5 +1,17 @@
-[
-  {"ts": "11:30", "agent": "System", "msg": "🟢 Crypto bots online — scanning every 5 minutes"},
-  {"ts": "11:22", "agent": "Robo-5", "msg": "🔍 Scanned 618 pairs — no signals"},
-  {"ts": "11:20", "agent": "System", "msg": "⚙️ Robo-7 (BTC/ETH) disabled — budget redirected to alts and shitcoins"}
+﻿[
+    {
+        "ts":  "12:36",
+        "agent":  "KRAKEN",
+        "msg":  "✅ Bought CHRUSD $0.01597"
+    },
+    {
+        "ts":  "12:36",
+        "agent":  "KRAKEN",
+        "msg":  "✅ Bought BOSUSD $0.001262"
+    },
+    {
+        "ts":  "12:35",
+        "agent":  "KRAKEN",
+        "msg":  "🔍 20 signals: AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, BOSUSD BUY, C98USD SELL +15 more"
+    }
 ]
