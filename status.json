@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T15:40:47.083Z",
+  "updated": "2026-03-13T15:43:57.484Z",
   "agents": [
     {
       "name": "Robo-1",
@@ -8,8 +8,8 @@
     },
     {
       "name": "Robo-2",
-      "status": "active",
-      "task": "Skill scouting"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-3",
@@ -18,13 +18,13 @@
     },
     {
       "name": "Robo-4",
-      "status": "active",
-      "task": "Web crawl"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-5",
-      "status": "active",
-      "task": "Scheduling"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-6",
@@ -33,13 +33,13 @@
     },
     {
       "name": "Robo-7",
-      "status": "active",
-      "task": "API calls"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-8",
-      "status": "active",
-      "task": "Report gen"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-9",
@@ -48,8 +48,8 @@
     },
     {
       "name": "Robo-10",
-      "status": "active",
-      "task": "Monitoring"
+      "status": "idle",
+      "task": "Idle"
     }
   ]
 }
