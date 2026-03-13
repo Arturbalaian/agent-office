@@ -1,5 +1,10 @@
 [
   {
+    "ts": "14:44",
+    "agent": "KRAKEN",
+    "msg": "🔍 27 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +22 more"
+  },
+  {
     "ts": "14:39",
     "agent": "KRAKEN",
     "msg": "🔍 26 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +21 more"
@@ -143,10 +148,5 @@
     "ts": "13:19",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "13:19",
-    "agent": "KRAKEN",
-    "msg": "🔍 17 signals: AI3USD BUY, ALICEUSD SELL, ALTHEAUSD SELL, AVAAIUSD BUY, BANANAS31USD SELL +12 more"
   }
 ]

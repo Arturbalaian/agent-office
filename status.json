@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T21:43:01.390Z",
+  "updated": "2026-03-13T21:45:01.394Z",
   "subagent": {
     "status": "idle",
     "task": ""
@@ -58,6 +58,11 @@
   ],
   "activity": [
     {
+      "ts": "14:44",
+      "agent": "KRAKEN",
+      "msg": "🔍 27 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +22 more"
+    },
+    {
       "ts": "14:39",
       "agent": "KRAKEN",
       "msg": "🔍 26 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +21 more"
@@ -76,11 +81,6 @@
       "ts": "14:24",
       "agent": "KRAKEN",
       "msg": "🔍 19 signals: AI3USD BUY, ALICEUSD BUY, BANANAS31USD SELL, CAMPUSD BUY, CATUSD SELL +14 more"
-    },
-    {
-      "ts": "14:19",
-      "agent": "KRAKEN",
-      "msg": "🔍 17 signals: AI3USD BUY, ALICEUSD BUY, ALPHAUSD SELL, BANANAS31USD SELL, CAMPUSD BUY +12 more"
     }
   ]
 }
