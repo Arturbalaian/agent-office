@@ -1,5 +1,15 @@
 [
   {
+    "ts": "13:39",
+    "agent": "KRAKEN",
+    "msg": "✅ Bought OOBUSD $0.01057"
+  },
+  {
+    "ts": "13:39",
+    "agent": "KRAKEN",
+    "msg": "🔍 17 signals: AI3USD BUY, ALICEUSD SELL, ALTHEAUSD SELL, ANONUSD SELL, BANANAS31USD SELL +12 more"
+  },
+  {
     "ts": "13:29",
     "agent": "KRAKEN",
     "msg": "✅ Bought OOBUSD $0.01054"
@@ -133,16 +143,6 @@
     "ts": "13:09",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: AI3USD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "13:09",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: COQUSD — Kraken: EOrder:Insufficient funds"
-  },
-  {
-    "ts": "13:09",
-    "agent": "KRAKEN",
-    "msg": "🔍 15 signals: AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, CATUSD SELL, DMCUSD SELL +10 more"
   },
   {
     "ts": "13:09",
