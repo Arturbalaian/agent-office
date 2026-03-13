@@ -429,24 +429,33 @@ setInterval(()=>{
     String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
 },1000);
 
-// ── DEMO: simulate random activity changes every 10s ──
-function simulateActivity() {
-  const tasks = TASK_POOL.filter(t => !t.includes('Свободен'));
-  // randomly activate/deactivate
-  agents.forEach(a => {
-    const shouldBeActive = Math.random() > 0.55;
-    if (shouldBeActive && !a.active) {
-      setAgent(a.id, true, tasks[Math.floor(Math.random()*tasks.length)]);
-    } else if (!shouldBeActive && a.active) {
-      setAgent(a.id, false, '💤 Свободен');
-    }
-  });
+// ── LOAD REAL STATUS FROM status.json ──
+function loadStatus() {
+  fetch('./status.json?t=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      const list = Array.isArray(data) ? data : (data.agents || []);
+      list.forEach((item, i) => {
+        if (i >= agents.length) return;
+        const active = item.status === 'active';
+        const task = item.task || (active ? '⚙️ Задача' : '💤 Свободен');
+        setAgent(i + 1, active, active ? '⚙️ ' + task : '💤 Свободен');
+      });
+    })
+    .catch(() => {
+      // Fallback: первые 6 активны
+      setAgent(1, true, '🦞 Патрулирует Moltbook');
+      setAgent(2, true, '🌐 Сёрфит интернет');
+      setAgent(3, true, '📊 Редактирует Excel');
+      setAgent(4, true, '⚙️ Web crawl');
+      setAgent(5, true, '📡 Monitoring');
+      setAgent(7, true, '📋 Report gen');
+    });
 }
-// Initial state — first 3 active
-setAgent(1, true, '🦞 Патрулирует Moltbook');
-setAgent(2, true, '🌐 Сёрфит интернет');
-setAgent(3, true, '📊 Редактирует Excel');
-setInterval(simulateActivity, 12000);
+
+// Первый запуск + обновление каждые 30 сек
+loadStatus();
+setInterval(loadStatus, 30000);
 
 </script>
 </body>
