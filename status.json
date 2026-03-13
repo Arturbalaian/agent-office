@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:05:25.658Z",
+  "updated": "2026-03-13T19:09:26.834Z",
   "subagent": {
     "status": "idle",
     "task": "Ожидание задачи"
@@ -59,18 +59,18 @@
   "activity": [
     {
       "ts": "11:30",
-      "agent": "Система",
-      "msg": "🟢 Крипто-боты онлайн — сканирование каждые 5 минут"
+      "agent": "System",
+      "msg": "🟢 Crypto bots online — scanning every 5 minutes"
     },
     {
       "ts": "11:22",
       "agent": "Robo-5",
-      "msg": "🔍 Просканировано 618 пар — сигналов нет"
+      "msg": "🔍 Scanned 618 pairs — no signals"
     },
     {
       "ts": "11:20",
-      "agent": "Система",
-      "msg": "⚙️ Robo-7 (BTC/ETH) отключён — бюджет направлен на альты и шиткоины"
+      "agent": "System",
+      "msg": "⚙️ Robo-7 (BTC/ETH) disabled — budget redirected to alts and shitcoins"
     }
   ]
 }
