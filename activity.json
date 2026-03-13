@@ -1,5 +1,10 @@
 [
   {
+    "ts": "13:54",
+    "agent": "KRAKEN",
+    "msg": "🔍 24 signals: AI3USD BUY, ALICEUSD BUY, ALKIMIUSD SELL, ALTHEAUSD SELL, ANONUSD SELL +19 more"
+  },
+  {
     "ts": "13:50",
     "agent": "KRAKEN",
     "msg": "✅ Bought OOBUSD $0.01061"
@@ -143,10 +148,5 @@
     "ts": "13:10",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: ZROUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "13:09",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: TLMUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
   }
 ]
