@@ -45,9 +45,6 @@ body {
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
-@media (max-width: 500px) {
-  .worker-grid { grid-template-columns: repeat(5, 1fr); }
-}
 
 /* ── WORKER CARD ── */
 .wcard {
@@ -72,7 +69,16 @@ body {
 .status-dot.on { background:#00ff88; box-shadow:0 0 4px #00ff88; animation:sdp 1.5s infinite; }
 @keyframes sdp { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-.w-name { font-size:8px; color:#ffff88; font-weight:bold; letter-spacing:.5px; }
+/* Agent name — shown big */
+.w-name {
+  font-size:8px; color:#ffff88; font-weight:bold; letter-spacing:.5px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  width:100%; text-align:center; padding:0 1px;
+}
+/* Subtle robo number below name */
+.w-num {
+  font-size:5px; color:#334455; letter-spacing:.5px;
+}
 
 .w-task {
   font-size:7px; color:#6699aa;
@@ -87,6 +93,12 @@ body {
 .act-bar { height:100%; background:#00ff88; border-radius:2px; width:15%; }
 .act-bar.running { animation: actrun 1.2s ease-in-out infinite; box-shadow:0 0 3px #00ff88; }
 @keyframes actrun { 0%{width:5%;margin-left:0} 50%{width:50%;margin-left:25%} 100%{width:5%;margin-left:90%} }
+
+/* ── TEAM CELL STYLES ── */
+.team-row { display:flex; gap:2px; justify-content:center; align-items:flex-end; padding:1px 0; }
+.wcard.team-card { border-color: #1a3040; background:#090d1a; }
+.wcard.team-card .w-name { color:#ffff44; font-size:9px; letter-spacing:1px; }
+.wcard.team-card .w-num { color:#2a4455; }
 
 /* ── CORRIDOR ── */
 .corridor {
@@ -196,7 +208,7 @@ body {
 
   <!-- WORKER ZONE -->
   <div class="zone" style="background:#0c0c20;border-color:#1a2050;">
-    <div class="zone-label">⚡ Штат — 10 сотрудников</div>
+    <div class="zone-label">⚡ Агенты и команды</div>
     <div class="worker-grid" id="worker-grid">
       <!-- filled by JS -->
     </div>
@@ -285,49 +297,58 @@ body {
 import * as THREE from 'three';
 
 // ── AGENT DATA ──
-const COLORS = [
-  '#ff4466','#ff8800','#ffcc00','#44ff66','#00ffcc',
-  '#00aaff','#8844ff','#ff44cc','#aaffaa','#ff6644'
+// 10 cells total (same grid). type:'team' cells contain multiple mini-robots.
+const agents = [
+  { id:1,  name:'МОЛТБУК',    num:'Robo-1',    color:'#ff4466', active:false, task:'💤 Свободен', type:'single' },
+  { id:2,  name:'ПОМОЩНИК',   num:'Robo-2',    color:'#ff8800', active:false, task:'💤 Свободен', type:'single' },
+  { id:3,  name:'СЕКРЕТАРЬ',  num:'Robo-3',    color:'#ffcc00', active:false, task:'💤 Свободен', type:'single' },
+  { id:4,  name:'РАЗВЕДЧИК',  num:'Robo-4',    color:'#44ff66', active:false, task:'💤 Свободен', type:'single' },
+  // KRAKEN: merged Robo-5 + Robo-6 + Robo-8
+  { id:5,  name:'KRAKEN',     num:'5·6·8',     color:'#00ffcc', active:false, task:'₿ crypto 24/7',
+    type:'team', teamColors:['#00ffcc','#00aaff','#ff44cc'] },
+  { id:6,  name:'АНАЛИТИК',   num:'Robo-7',    color:'#8844ff', active:false, task:'💤 Свободен', type:'single' },
+  // КАЛШИ: merged Robo-9 + Robo-10
+  { id:7,  name:'КАЛШИ',      num:'9·10',      color:'#aaffaa', active:false, task:'📊 prediction mkts',
+    type:'team', teamColors:['#aaffaa','#ff6644'] },
+  // New robots in freed slots
+  { id:8,  name:'ЮРИСТ',      num:'Robo-11',   color:'#66aaff', active:false, task:'💤 Свободен', type:'single' },
+  { id:9,  name:'МАРКЕТОЛОГ', num:'Robo-12',   color:'#ff66aa', active:false, task:'💤 Свободен', type:'single' },
+  { id:10, name:'АНАЛИТИК',   num:'Robo-13',   color:'#ffaa44', active:false, task:'💤 Свободен', type:'single' },
 ];
-
-const TASK_POOL = [
-  '💤 Свободен',
-  '💻 Пишет Python скрипт',
-  '📊 Редактирует Excel',
-  '📝 Создаёт Word документ',
-  '🌐 Сёрфит интернет',
-  '📄 Генерирует PDF',
-  '🔍 Анализирует данные',
-  '📧 Обрабатывает почту',
-  '🗂️ Архивирует файлы',
-  '🤖 Обучает модель',
-  '🛠️ Чинит баги',
-  '📱 Мониторит соцсети',
-];
-
-// State
-const agents = Array.from({length:10}, (_, i) => ({
-  id: i+1,
-  name: `Robo-${i+1}`,
-  color: COLORS[i],
-  active: false,
-  task: '💤 Свободен',
-  scene: null, camera: null, renderer: null, mesh: null,
-}));
 
 // ── BUILD WORKER CARDS ──
 const grid = document.getElementById('worker-grid');
 agents.forEach(a => {
   const card = document.createElement('div');
-  card.className = 'wcard';
+  card.className = 'wcard' + (a.type === 'team' ? ' team-card' : '');
   card.id = `card-${a.id}`;
-  card.innerHTML = `
-    <div class="status-dot" id="dot-${a.id}"></div>
-    <canvas id="cv-${a.id}" width="60" height="68"></canvas>
-    <div class="w-name">${a.name}</div>
-    <div class="w-task" id="task-${a.id}">${a.task}</div>
-    <div class="act-wrap"><div class="act-bar" id="bar-${a.id}"></div></div>
-  `;
+
+  if (a.type === 'team') {
+    // Multiple mini-robot canvases side by side
+    const isLarge = a.teamColors.length === 2; // 2-robot team gets bigger canvases
+    const cw = isLarge ? 25 : 17;
+    const ch = isLarge ? 32 : 24;
+    const canvasesHtml = a.teamColors.map((_, i) =>
+      `<canvas id="cv-${a.id}-${i}" width="${cw}" height="${ch}"></canvas>`
+    ).join('');
+    card.innerHTML = `
+      <div class="status-dot" id="dot-${a.id}"></div>
+      <div class="team-row">${canvasesHtml}</div>
+      <div class="w-name">${a.name}</div>
+      <div class="w-num">${a.num}</div>
+      <div class="w-task" id="task-${a.id}">${a.task}</div>
+      <div class="act-wrap"><div class="act-bar" id="bar-${a.id}"></div></div>
+    `;
+  } else {
+    card.innerHTML = `
+      <div class="status-dot" id="dot-${a.id}"></div>
+      <canvas id="cv-${a.id}" width="54" height="64"></canvas>
+      <div class="w-name">${a.name}</div>
+      <div class="w-num">${a.num}</div>
+      <div class="w-task" id="task-${a.id}">${a.task}</div>
+      <div class="act-wrap"><div class="act-bar" id="bar-${a.id}"></div></div>
+    `;
+  }
   grid.appendChild(card);
 });
 
@@ -350,7 +371,6 @@ function makeCharScene(canvasEl, color, scale=1) {
   scene.add(dir);
 
   const mat = new THREE.MeshPhongMaterial({color: new THREE.Color(color), shininess:60});
-  const darkMat = new THREE.MeshPhongMaterial({color: 0x111133});
   const eyeMat = new THREE.MeshPhongMaterial({color: 0xffffff, emissive: new THREE.Color(color), emissiveIntensity:.5});
 
   const group = new THREE.Group();
@@ -397,13 +417,25 @@ function makeCharScene(canvasEl, color, scale=1) {
   return {renderer, scene, camera, group, head};
 }
 
-// Init all worker characters
+// ── INIT THREE.JS FOR ALL AGENTS ──
 agents.forEach(a => {
-  const cv = document.getElementById(`cv-${a.id}`);
-  const {renderer, scene, camera, group, head} = makeCharScene(cv, a.color);
-  a.renderer = renderer; a.scene = scene; a.camera = camera;
-  a.group = group; a.head = head;
-  a.phase = Math.random() * Math.PI * 2;
+  if (a.type === 'team') {
+    const isLarge = a.teamColors.length === 2;
+    const scale = isLarge ? 0.62 : 0.50;
+    a.teamScenes = a.teamColors.map((c, i) => {
+      const cv = document.getElementById(`cv-${a.id}-${i}`);
+      const s = makeCharScene(cv, c, scale);
+      s.phase = Math.random() * Math.PI * 2;
+      return s;
+    });
+    a.phase = Math.random() * Math.PI * 2;
+  } else {
+    const cv = document.getElementById(`cv-${a.id}`);
+    const s = makeCharScene(cv, a.color);
+    a.renderer = s.renderer; a.scene = s.scene; a.camera = s.camera;
+    a.group = s.group; a.head = s.head;
+    a.phase = Math.random() * Math.PI * 2;
+  }
 });
 
 // Director character
@@ -411,27 +443,44 @@ const dirCv = document.getElementById('dir-canvas');
 const dir3d = makeCharScene(dirCv, '#00cc44', 1.3);
 dir3d.phase = 0;
 
+// Secretary character
+const secCanvas = document.getElementById('sec-canvas');
+if (secCanvas) makeCharScene(secCanvas, '#aa66ff', 0.85);
+
 // ── ANIMATION LOOP ──
 function animate(t) {
   requestAnimationFrame(animate);
   const time = t * 0.001;
 
   agents.forEach(a => {
-    const ph = a.phase;
-    const speed = a.active ? 2.5 : 0.8;
-    const amp = a.active ? 0.06 : 0.02;
-
-    a.group.position.y = Math.sin(time * speed + ph) * amp;
-    a.group.rotation.y = Math.sin(time * 0.5 + ph) * 0.15;
-    a.head.rotation.y = a.active ? Math.sin(time * 2 + ph) * 0.2 : 0;
-
-    a.group.children.forEach(c => {
-      if (c.userData.isArm) {
-        c.rotation.z = c.userData.side * (0.4 + (a.active ? Math.sin(time * 3 + ph) * 0.3 : 0));
-      }
-    });
-
-    a.renderer.render(a.scene, a.camera);
+    if (a.type === 'team') {
+      a.teamScenes.forEach((ts, i) => {
+        const ph = ts.phase;
+        const speed = a.active ? 2.5 : 0.8;
+        const amp = a.active ? 0.06 : 0.02;
+        ts.group.position.y = Math.sin(time * speed + ph) * amp;
+        ts.group.rotation.y = Math.sin(time * 0.5 + ph + i * 1.3) * 0.15;
+        ts.group.children.forEach(c => {
+          if (c.userData && c.userData.isArm) {
+            c.rotation.z = c.userData.side * (0.4 + (a.active ? Math.sin(time * 3 + ph + i) * 0.3 : 0));
+          }
+        });
+        ts.renderer.render(ts.scene, ts.camera);
+      });
+    } else {
+      const ph = a.phase;
+      const speed = a.active ? 2.5 : 0.8;
+      const amp = a.active ? 0.06 : 0.02;
+      a.group.position.y = Math.sin(time * speed + ph) * amp;
+      a.group.rotation.y = Math.sin(time * 0.5 + ph) * 0.15;
+      a.head.rotation.y = a.active ? Math.sin(time * 2 + ph) * 0.2 : 0;
+      a.group.children.forEach(c => {
+        if (c.userData && c.userData.isArm) {
+          c.rotation.z = c.userData.side * (0.4 + (a.active ? Math.sin(time * 3 + ph) * 0.3 : 0));
+        }
+      });
+      a.renderer.render(a.scene, a.camera);
+    }
   });
 
   // Director
@@ -444,6 +493,7 @@ animate(0);
 // ── STATE UPDATES ──
 function setAgent(id, active, task) {
   const a = agents[id-1];
+  if (!a) return;
   a.active = active;
   a.task = task;
 
@@ -451,10 +501,12 @@ function setAgent(id, active, task) {
   const taskEl = document.getElementById(`task-${id}`);
   const bar = document.getElementById(`bar-${id}`);
 
-  dot.className = 'status-dot' + (active ? ' on' : '');
-  taskEl.textContent = task;
-  taskEl.className = 'w-task' + (active ? ' active-task' : '');
-  bar.className = 'act-bar' + (active ? ' running' : '');
+  if (dot) dot.className = 'status-dot' + (active ? ' on' : '');
+  if (taskEl) {
+    taskEl.textContent = task;
+    taskEl.className = 'w-task' + (active ? ' active-task' : '');
+  }
+  if (bar) bar.className = 'act-bar' + (active ? ' running' : '');
 
   updateCount();
   updateTicker();
@@ -475,6 +527,8 @@ function updateTicker() {
     ...agents.filter(a=>a.active).map(a=>`${a.name}: ${a.task.replace(/^\S+\s/,'')}`),
     ...agents.filter(a=>!a.active).slice(0,3).map(a=>`${a.name}: свободен`),
     'Cola в холодильнике FREE 🥤',
+    'KRAKEN торгует крипто 24/7 ₿',
+    'КАЛШИ мониторит рынки предсказаний 📊',
   ];
   const doubled = [...items, ...items];
   document.getElementById('ticker').innerHTML = doubled.map(t=>`<span class="ti">${t}</span>`).join('');
@@ -504,13 +558,13 @@ function loadStatus() {
       });
     })
     .catch(() => {
-      // Fallback: первые 6 активны
+      // Fallback defaults
       setAgent(1, true, '🦞 Патрулирует Moltbook');
       setAgent(2, true, '🌐 Сёрфит интернет');
-      setAgent(3, true, '📊 Редактирует Excel');
+      setAgent(3, true, '📊 Обрабатывает документы');
       setAgent(4, true, '⚙️ Web crawl');
-      setAgent(5, true, '📡 Monitoring');
-      setAgent(7, true, '📋 Report gen');
+      setAgent(5, true, '₿ Торгует крипто');
+      setAgent(6, true, '📋 Анализирует рынок');
     });
 }
 
@@ -519,12 +573,6 @@ loadStatus();
 setInterval(loadStatus, 30000);
 
 // ── SECRETARY SUB-AGENT ──
-const secCanvas = document.getElementById('sec-canvas');
-if (secCanvas) {
-  makeCharScene(secCanvas, 0xaa66ff, 0.85);
-}
-
-// Секретарь читает sub-agent статус из status.json
 function updateSecretary(data) {
   const secTask = document.getElementById('sec-task');
   const secBar = document.getElementById('sec-bar');
@@ -543,7 +591,6 @@ function updateSecretary(data) {
   }
 }
 
-// Expose для обновления секретаря снаружи
 window.setSecretaryTask = function(task) {
   const el = document.getElementById('sec-task');
   const bar = document.getElementById('sec-bar');
@@ -553,10 +600,22 @@ window.setSecretaryTask = function(task) {
 
 // ── ACTIVITY LOG ──
 const AGENT_COLOR_MAP = {
-  'Robo-1': '#ff4466',  'Robo-2': '#ff8800',  'Robo-3': '#ffcc00',
-  'Robo-4': '#44ff66',  'Robo-5': '#00ffcc',  'Robo-6': '#00aaff',
-  'Robo-7': '#8844ff',  'Robo-8': '#ff44cc',  'Robo-9': '#aaffaa',
-  'Robo-10': '#ff6644', 'Система': '#44cc88',
+  'МОЛТБУК':    '#ff4466',
+  'ПОМОЩНИК':   '#ff8800',
+  'СЕКРЕТАРЬ':  '#ffcc00',
+  'РАЗВЕДЧИК':  '#44ff66',
+  'KRAKEN':     '#00ffcc',
+  'АНАЛИТИК':   '#8844ff',
+  'КАЛШИ':      '#aaffaa',
+  'ЮРИСТ':      '#66aaff',
+  'МАРКЕТОЛОГ': '#ff66aa',
+  // Legacy keys for backwards compat with old activity.json
+  'Robo-1':'#ff4466','Robo-2':'#ff8800','Robo-3':'#ffcc00',
+  'Robo-4':'#44ff66','Robo-5':'#00ffcc','Robo-6':'#00aaff',
+  'Robo-7':'#8844ff','Robo-8':'#ff44cc','Robo-9':'#aaffaa',
+  'Robo-10':'#ff6644','Robo-11':'#66aaff','Robo-12':'#ff66aa',
+  'Robo-13':'#ffaa44',
+  'Система': '#44cc88',
 };
 
 let lastActivityTs = null;
@@ -572,7 +631,6 @@ function renderActivity(entries) {
   const log = document.getElementById('activity-log');
   if (!log) return;
 
-  // Build HTML for all entries (newest first — column-reverse handles display)
   const html = entries.map((e, i) => {
     const color = AGENT_COLOR_MAP[e.agent] || '#6699aa';
     const cls = getEntryClass(e.msg);
@@ -599,7 +657,6 @@ function loadActivity() {
       if (Array.isArray(data)) renderActivity(data);
     })
     .catch(() => {
-      // fallback: try activity from status.json
       fetch('./status.json?t=' + Date.now())
         .then(r => r.json())
         .then(d => { if (Array.isArray(d.activity)) renderActivity(d.activity); })
@@ -607,7 +664,6 @@ function loadActivity() {
     });
 }
 
-// Initial load + poll every 5s
 loadActivity();
 setInterval(loadActivity, 5000);
 
