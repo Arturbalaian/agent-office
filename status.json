@@ -1,5 +1,9 @@
 ﻿{
-    "subagent":{"status":"active","task":"Делегирует DS-160 -> Robo-3"},"updated":  "2026-03-13T17:36:50.321Z",
+    "subagent":  {
+                     "status":  "active",
+                     "task":  "Делегирует DS-160 -\u003e Robo-3"
+                 },
+    "updated":  "2026-03-13T17:36:50.321Z",
     "agents":  [
                    {
                        "name":  "Robo-1",
@@ -13,8 +17,8 @@
                    },
                    {
                        "name":  "Robo-3",
-                       "status":  "active",
-                       "task":  "Заполняет DS-160 (паспорт папы)"
+                       "status":  "idle",
+                       "task":  "Idle"
                    },
                    {
                        "name":  "Robo-4",
