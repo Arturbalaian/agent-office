@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T22:59:01.381Z",
+  "updated": "2026-03-13T23:01:01.418Z",
   "subagent": {
     "status": "idle",
     "task": ""
@@ -27,13 +27,13 @@
     },
     {
       "name": "Robo-5",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "KRAKEN - шиткоины 24/7"
     },
     {
       "name": "Robo-6",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "KRAKEN - альты 24/7"
     },
     {
       "name": "Robo-7",
@@ -42,18 +42,18 @@
     },
     {
       "name": "Robo-8",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "KRAKEN - исполнение ордеров 24/7"
     },
     {
       "name": "Robo-9",
       "status": "active",
-      "task": "KALSHI - prediction markets 24/7"
+      "task": "KALSHI - анализ рынков 24/7"
     },
     {
       "name": "Robo-10",
       "status": "active",
-      "task": "KRAKEN - крипто-трейдинг 24/7"
+      "task": "KALSHI - трейдинг 24/7"
     }
   ],
   "activity": [
