@@ -399,6 +399,15 @@ function makeHuman(skinColor, hairColor, shirtColor, sitting=true){
   return {group:g, head};
 }
 
+// ── REST SPOTS (sofa + around table) ──
+const restSpots = [
+  {x:-7, z:2.85, rot:0},
+  {x:-6, z:2.85, rot:0},
+  {x:-5, z:2.85, rot:0},
+  {x:-7.4, z:1.9, rot:0.4},
+  {x:-4.6, z:1.9, rot:-0.4},
+];
+
 // Build all worker desks + chairs + people
 const workerMeshes = [];
 let agentIdx = 0;
@@ -412,6 +421,12 @@ deskZ.forEach(z=>{
     hg.position.set(x,0,z+0.62);
     scene.add(hg);
     a.humanGroup=hg; a.humanHead=hh;
+    // State machine
+    a.state='desk'; // 'desk' | 'walking_to_rest' | 'resting' | 'walking_to_desk'
+    a.deskPos={x, z: z+0.62};
+    a.targetPos={x, z: z+0.62};
+    a.restSpotIdx=-1;
+    a.walkSpeed=1.4+Math.random()*.6;
     workerMeshes.push({group:hg,head:hh,agent:a});
     agentIdx++;
   });
@@ -545,6 +560,41 @@ function makeLabel(text, color='#00ffcc'){
   return {sprite, canvas:canvas2, ctx, tex};
 }
 
+// ── SPEECH BUBBLE ──
+const CHATS = [
+  '☕ Кофе-пауза!','💡 Идея есть!','🤖 AI — будущее','🐍 Python рулит',
+  '📊 Видел датасет?','🎯 Новая задача?','😄 Хорошо работаем','🥤 Кто взял колу?',
+  '🚀 Деплоим сегодня','💬 Слышал новость?','🌿 Хороший офис','🔥 Задача горит',
+];
+function makeBubble(){
+  const c=document.createElement('canvas');
+  c.width=200; c.height=50;
+  const ctx=c.getContext('2d');
+  const tex=new THREE.CanvasTexture(c);
+  const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
+  const spr=new THREE.Sprite(mat);
+  spr.scale.set(1.1,.28,1);
+  spr.visible=false;
+  scene.add(spr);
+  return {spr,c,ctx,tex};
+}
+function drawBubble(b,text,color='#ffff88'){
+  const {c,ctx,tex}=b;
+  ctx.clearRect(0,0,200,50);
+  ctx.fillStyle='rgba(12,10,28,0.92)';
+  ctx.beginPath(); ctx.roundRect(2,2,196,38,8); ctx.fill();
+  ctx.strokeStyle=color+'88'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.roundRect(2,2,196,38,8); ctx.stroke();
+  // tail
+  ctx.fillStyle='rgba(12,10,28,0.92)';
+  ctx.beginPath(); ctx.moveTo(90,40); ctx.lineTo(100,50); ctx.lineTo(110,40); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=color;
+  ctx.font='bold 13px Courier New';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text,100,20);
+  tex.needsUpdate=true;
+}
+
 // Create labels for each agent
 const deskZPositions = [-3.5, 0.5];
 agentIdx=0;
@@ -556,6 +606,9 @@ deskZ.forEach((z,row)=>{
     sprite.position.set(x,2.0,z-0.3);
     scene.add(sprite);
     a.labelSprite=sprite; a.labelCanvas=c2; a.labelCtx=cx2; a.labelTex=tex;
+    // Speech bubble per agent
+    const bub=makeBubble();
+    a.bubble=bub;
     agentIdx++;
   });
 });
@@ -669,27 +722,120 @@ setAgent(1,'active','🦞 Патрулирует Moltbook');
 setAgent(2,'active','🌐 Веб-разведка');
 setAgent(3,'active','📊 Редактирует Excel');
 
+// ── MOVEMENT: send agent to rest or desk ──
+function sendToRest(agent){
+  if(agent.state==='resting'||agent.state==='walking_to_rest') return;
+  // find free spot
+  const taken=agents.filter(a=>a.restSpotIdx>=0).map(a=>a.restSpotIdx);
+  const free=restSpots.findIndex((_,i)=>!taken.includes(i));
+  if(free<0) return;
+  agent.restSpotIdx=free;
+  const spot=restSpots[free];
+  agent.targetPos={x:spot.x, z:spot.z};
+  agent.state='walking_to_rest';
+}
+
+function sendToDesk(agent){
+  if(agent.state==='desk'||agent.state==='walking_to_desk') return;
+  agent.state='walking_to_desk';
+  agent.targetPos={x:agent.deskPos.x, z:agent.deskPos.z};
+  agent.restSpotIdx=-1;
+  if(agent.bubble) agent.bubble.spr.visible=false;
+}
+
+// ── BEHAVIOR SCHEDULER ──
+setInterval(()=>{
+  agents.forEach(a=>{
+    if(a.status==='idle' && a.state==='desk' && Math.random()>.45){
+      sendToRest(a);
+    }
+    if(a.status==='active' && (a.state==='resting'||a.state==='walking_to_rest')){
+      sendToDesk(a);
+    }
+  });
+},8000);
+
+// ── BUBBLE SCHEDULER (agents in rest zone chat) ──
+setInterval(()=>{
+  const resting=agents.filter(a=>a.state==='resting');
+  resting.forEach(a=>{
+    if(!a.bubble) return;
+    if(Math.random()>.4){
+      const msg=CHATS[Math.floor(Math.random()*CHATS.length)];
+      drawBubble(a.bubble,msg,'#ffff88');
+      a.bubble.spr.visible=true;
+      setTimeout(()=>{ if(a.bubble) a.bubble.spr.visible=false; },3500+Math.random()*2000);
+    }
+  });
+},5000);
+
 // ═══════════════════════════════════════════════
 //  ANIMATION
 // ═══════════════════════════════════════════════
 const clock2=new THREE.Clock();
+const WALK_SPEED=2.0;
+
 function animate(){
   requestAnimationFrame(animate);
   const t=clock2.getElapsedTime();
+  const dt=Math.min(clock2.getDelta(),.05);
 
-  // Subtle camera drift
+  // Camera drift
   camera.position.x=Math.sin(t*.05)*0.3;
   camera.lookAt(0,0,0);
 
-  // Animate workers
   workerMeshes.forEach(({group,head,agent})=>{
     const ph=agent.phase;
-    const spd=agent.status==='active'?2:0.7;
-    const amp=agent.status==='active'?.025:.008;
-    group.position.y=Math.sin(t*spd+ph)*amp;
-    head.rotation.y=Math.sin(t*0.8+ph)*.08;
-    if(agent.status==='active'){
-      head.rotation.z=Math.sin(t*1.5+ph)*.04;
+    const walking=agent.state==='walking_to_rest'||agent.state==='walking_to_desk';
+
+    // ── Move toward target ──
+    if(walking){
+      const dx=agent.targetPos.x-group.position.x;
+      const dz=agent.targetPos.z-group.position.z;
+      const dist=Math.sqrt(dx*dx+dz*dz);
+      if(dist<0.08){
+        group.position.x=agent.targetPos.x;
+        group.position.z=agent.targetPos.z;
+        agent.state=agent.state==='walking_to_rest'?'resting':'desk';
+        // face inward if resting
+        if(agent.state==='resting'){
+          const spot=restSpots[agent.restSpotIdx];
+          group.rotation.y=spot.rot||Math.PI;
+        } else {
+          group.rotation.y=0;
+        }
+      } else {
+        const spd=agent.walkSpeed*dt;
+        group.position.x+=dx/dist*spd;
+        group.position.z+=dz/dist*spd;
+        // face direction of movement
+        group.rotation.y=Math.atan2(dx,dz);
+        // Walking body sway
+        group.rotation.z=Math.sin(t*8+ph)*.07;
+        group.position.y=Math.abs(Math.sin(t*8+ph))*.06;
+        head.rotation.z=Math.sin(t*8+ph)*.05;
+      }
+    } else {
+      group.rotation.z=0;
+      // Idle bob
+      const spd=agent.status==='active'?2:.6;
+      const amp=agent.status==='active'?.022:.007;
+      group.position.y=Math.sin(t*spd+ph)*amp;
+      head.rotation.y=Math.sin(t*.8+ph)*.08;
+      if(agent.status==='active') head.rotation.z=Math.sin(t*1.5+ph)*.04;
+      else head.rotation.z=0;
+    }
+
+    // ── Label follows agent ──
+    if(agent.labelSprite){
+      agent.labelSprite.position.x=group.position.x;
+      agent.labelSprite.position.z=group.position.z;
+      agent.labelSprite.position.y=2.0;
+    }
+
+    // ── Bubble follows agent ──
+    if(agent.bubble){
+      agent.bubble.spr.position.set(group.position.x, 2.4, group.position.z);
     }
   });
 
@@ -701,16 +847,20 @@ function animate(){
 }
 animate();
 
-// Gentle auto-simulation for idle agents
+// Auto-simulation
 setInterval(()=>{
-  const TASKS=['💻 Пишет скрипт','📊 Анализирует данные','📄 Генерирует PDF','🔍 Ищет информацию','📝 Редактирует документ','🛠️ Тестирует код'];
+  const TASKS=['💻 Пишет скрипт','📊 Анализирует данные','📄 Генерирует PDF','🔍 Ищет информацию','📝 Редактирует документ','🛠️ Тестирует код','🌐 Веб-поиск'];
   agents.slice(3).forEach(a=>{
-    if(Math.random()>.65){
-      const on=a.status!=='active';
-      setAgent(a.id, on?'active':'idle', on?TASKS[Math.floor(Math.random()*TASKS.length)]:'💤 Свободен');
+    if(a.state!=='desk'&&a.state!=='resting') return; // let walkers finish
+    const shouldWork=Math.random()>.5;
+    if(shouldWork&&a.status!=='active'){
+      setAgent(a.id,'active',TASKS[Math.floor(Math.random()*TASKS.length)]);
+      sendToDesk(a);
+    } else if(!shouldWork&&a.status==='active'){
+      setAgent(a.id,'idle','💤 Свободен');
     }
   });
-},15000);
+},18000);
 
 updateTicker();
 </script>
