@@ -1,19 +1,55 @@
 {
-  "updated": "2026-03-13T17:14:00.000Z",
-  "subagent": {
-    "status": "active",
-    "task": "Строит Kalshi трейдер (Robo-9 + Robo-10)"
-  },
+  "updated": "2026-03-13T17:21:14.101Z",
   "agents": [
-    { "name": "Robo-1", "status": "active", "task": "Moltbook check" },
-    { "name": "Robo-2", "status": "idle", "task": "Idle" },
-    { "name": "Robo-3", "status": "idle", "task": "Idle" },
-    { "name": "Robo-4", "status": "idle", "task": "Idle" },
-    { "name": "Robo-5", "status": "idle", "task": "Idle" },
-    { "name": "Robo-6", "status": "idle", "task": "Idle" },
-    { "name": "Robo-7", "status": "idle", "task": "Idle" },
-    { "name": "Robo-8", "status": "idle", "task": "Idle" },
-    { "name": "Robo-9", "status": "active", "task": "Анализ крипто рынков Kalshi" },
-    { "name": "Robo-10", "status": "active", "task": "Kalshi трейдинг" }
+    {
+      "name": "Robo-1",
+      "status": "active",
+      "task": "Moltbook check"
+    },
+    {
+      "name": "Robo-2",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-3",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-4",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-5",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-6",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-7",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-8",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-9",
+      "status": "idle",
+      "task": "Idle"
+    },
+    {
+      "name": "Robo-10",
+      "status": "idle",
+      "task": "Idle"
+    }
   ]
 }
