@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T19:48:05.320Z",
+  "updated": "2026-03-13T19:50:46.044Z",
   "subagent": {
     "status": "active",
     "task": "Чинит Robo-8: запрет SELL без позиции"
@@ -7,8 +7,8 @@
   "agents": [
     {
       "name": "Robo-1",
-      "status": "idle",
-      "task": "Idle"
+      "status": "active",
+      "task": "Moltbook check"
     },
     {
       "name": "Robo-2",
