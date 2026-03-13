@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -208,7 +208,7 @@ body {
 
   <!-- WORKER ZONE -->
   <div class="zone" style="background:#0c0c20;border-color:#1a2050;">
-    <div class="zone-label">⚡ Агенты и команды</div>
+    <div class="zone-label">⚡ Agents & Teams</div>
     <div class="worker-grid" id="worker-grid">
       <!-- filled by JS -->
     </div>
@@ -216,7 +216,7 @@ body {
 
   <!-- CORRIDOR -->
   <div class="zone corridor">
-    <div class="zone-label">🚶 Коридор</div>
+    <div class="zone-label">🚶 Corridor</div>
     <span style="font-size:18px">🌴</span>
     <span style="font-size:13px">🌿</span>
     <div class="corridor-path"></div>
@@ -229,11 +229,11 @@ body {
 
     <!-- SECRETARY -->
     <div class="zone rest-zone" style="border-color:#2a1a40;">
-      <div class="zone-label" style="color:#aa66ff;">🤖 Секретарь</div>
+      <div class="zone-label" style="color:#aa66ff;">🤖 Secretary</div>
       <div class="rest-items">
         <canvas id="sec-canvas" width="60" height="68"></canvas>
-        <div style="font:bold 9px monospace;color:#aa66ff;margin-top:2px;">СУБ-АГЕНТ</div>
-        <div id="sec-task" style="font:7px monospace;color:#667799;text-align:center;max-width:110px;">💤 Ожидание задачи</div>
+        <div style="font:bold 9px monospace;color:#aa66ff;margin-top:2px;">SECRETARY</div>
+        <div id="sec-task" style="font:7px monospace;color:#667799;text-align:center;max-width:110px;">💤 Waiting for task</div>
         <div style="height:3px;width:100px;background:#1a1a30;border-radius:2px;margin-top:4px;overflow:hidden;">
           <div id="sec-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#aa66ff,#6644cc);border-radius:2px;transition:width .5s;"></div>
         </div>
@@ -242,13 +242,13 @@ body {
 
     <!-- DIRECTOR -->
     <div class="zone dir-zone">
-      <div class="zone-label">👑 Директор</div>
+      <div class="zone-label">👑 Director</div>
       <div class="dir-inner">
         <div class="dir-plant">🌳</div>
         <canvas id="dir-canvas" width="80" height="90"></canvas>
-        <div class="dir-name">РОБОЧЕЛОВЕК</div>
-        <div class="dir-role">🤖 Главный агент</div>
-        <div class="dir-task" id="dir-task">💬 На связи с Артуром</div>
+        <div class="dir-name">ROBOHUMAN</div>
+        <div class="dir-role">🤖 Head Agent</div>
+        <div class="dir-task" id="dir-task">💬 In contact with Artur</div>
         <div class="dir-desk">
           <div>
             <div class="macbook"><div class="mb-screen">
@@ -268,10 +268,10 @@ body {
 
   <!-- ACTIVITY LOG -->
   <div class="zone activity-panel">
-    <div class="zone-label">📋 АКТИВНОСТЬ</div>
+    <div class="zone-label">📋 ACTIVITY</div>
     <div class="act-panel-title">
-      <span>ЛОГ АГЕНТОВ</span>
-      <span class="act-badge" id="act-count">0 записей</span>
+      <span>AGENT LOG</span>
+      <span class="act-badge" id="act-count">0 entries</span>
     </div>
     <div class="activity-log" id="activity-log">
       <!-- filled by JS -->
@@ -282,7 +282,7 @@ body {
 
 <!-- TICKER -->
 <div class="ticker">
-  <div class="ticker-tag">📡 ЭФИР</div>
+  <div class="ticker-tag">📡 LIVE</div>
   <div class="ticker-body" id="ticker"></div>
 </div>
 
@@ -299,16 +299,16 @@ import * as THREE from 'three';
 // ── AGENT DATA ──
 // 10 cells total (same grid). type:'team' cells contain multiple mini-robots.
 const agents = [
-  { id:1,  name:'МОЛТБУК',    num:'Robo-1',    color:'#ff4466', active:false, task:'💤 Свободен', type:'single' },
-  { id:2,  name:'ПОМОЩНИК',   num:'Robo-2',    color:'#ff8800', active:false, task:'💤 Свободен', type:'single' },
-  { id:3,  name:'СЕКРЕТАРЬ',  num:'Robo-3',    color:'#ffcc00', active:false, task:'💤 Свободен', type:'single' },
-  { id:4,  name:'РАЗВЕДЧИК',  num:'Robo-4',    color:'#44ff66', active:false, task:'💤 Свободен', type:'single' },
-  { id:5,  name:'АНАЛИТИК',   num:'Robo-7',    color:'#8844ff', active:false, task:'💤 Свободен', type:'single' },
-  { id:6,  name:'ЮРИСТ',      num:'Robo-11',   color:'#66aaff', active:false, task:'💤 Свободен', type:'single' },
-  { id:7,  name:'МАРКЕТОЛОГ', num:'Robo-12',   color:'#ff66aa', active:false, task:'💤 Свободен', type:'single' },
-  { id:8,  name:'АНАЛИТИК',   num:'Robo-13',   color:'#ffaa44', active:false, task:'💤 Свободен', type:'single' },
-  // КАЛШИ: merged Robo-9 + Robo-10 — position 9 (bottom row)
-  { id:9,  name:'КАЛШИ',      num:'9·10',      color:'#aaffaa', active:false, task:'📊 prediction mkts',
+  { id:1,  name:'MOLTBOOK',   num:'Robo-1',    color:'#ff4466', active:false, task:'💤 Idle', type:'single' },
+  { id:2,  name:'ASSISTANT',  num:'Robo-2',    color:'#ff8800', active:false, task:'💤 Idle', type:'single' },
+  { id:3,  name:'SECRETARY',  num:'Robo-3',    color:'#ffcc00', active:false, task:'💤 Idle', type:'single' },
+  { id:4,  name:'SCOUT',      num:'Robo-4',    color:'#44ff66', active:false, task:'💤 Idle', type:'single' },
+  { id:5,  name:'ANALYST',    num:'Robo-7',    color:'#8844ff', active:false, task:'💤 Idle', type:'single' },
+  { id:6,  name:'LAWYER',     num:'Robo-11',   color:'#66aaff', active:false, task:'💤 Idle', type:'single' },
+  { id:7,  name:'MARKETER',   num:'Robo-12',   color:'#ff66aa', active:false, task:'💤 Idle', type:'single' },
+  { id:8,  name:'ANALYST',    num:'Robo-13',   color:'#ffaa44', active:false, task:'💤 Idle', type:'single' },
+  // KALSHI: merged Robo-9 + Robo-10 — position 9 (bottom row)
+  { id:9,  name:'KALSHI',     num:'9·10',      color:'#aaffaa', active:false, task:'📊 prediction mkts',
     type:'team', teamColors:['#aaffaa','#ff6644'] },
   // KRAKEN: merged Robo-5 + Robo-6 + Robo-8 — position 10 (bottom row last)
   { id:10, name:'KRAKEN',     num:'5·6·8',     color:'#00ffcc', active:false, task:'₿ crypto 24/7',
@@ -522,12 +522,12 @@ window.setAgent = setAgent;
 // ── TICKER ──
 function updateTicker() {
   const items = [
-    'Робочеловек на связи с Артуром',
+    'Robohuman in contact with Artur',
     ...agents.filter(a=>a.active).map(a=>`${a.name}: ${a.task.replace(/^\S+\s/,'')}`),
-    ...agents.filter(a=>!a.active).slice(0,3).map(a=>`${a.name}: свободен`),
-    'Cola в холодильнике FREE 🥤',
-    'KRAKEN торгует крипто 24/7 ₿',
-    'КАЛШИ мониторит рынки предсказаний 📊',
+    ...agents.filter(a=>!a.active).slice(0,3).map(a=>`${a.name}: idle`),
+    'Cola in the fridge FREE 🥤',
+    'KRAKEN trading crypto 24/7 ₿',
+    'KALSHI monitoring prediction markets 📊',
   ];
   const doubled = [...items, ...items];
   document.getElementById('ticker').innerHTML = doubled.map(t=>`<span class="ti">${t}</span>`).join('');
@@ -546,28 +546,28 @@ function loadStatus() {
   fetch('./status.json?t=' + Date.now())
     .then(r => r.json())
     .then(data => {
-      // Обновляем секретаря
+      // Update secretary
       if (data.subagent) updateSecretary(data);
       const list = Array.isArray(data) ? data : (data.agents || []);
       list.forEach((item, i) => {
         if (i >= agents.length) return;
         const active = item.status === 'active';
-        const task = item.task || (active ? '⚙️ Задача' : '💤 Свободен');
-        setAgent(i + 1, active, active ? '⚙️ ' + task : '💤 Свободен');
+        const task = item.task || (active ? '⚙️ Task' : '💤 Idle');
+        setAgent(i + 1, active, active ? '⚙️ ' + task : '💤 Idle');
       });
     })
     .catch(() => {
       // Fallback defaults
-      setAgent(1, true, '🦞 Патрулирует Moltbook');
-      setAgent(2, true, '🌐 Сёрфит интернет');
-      setAgent(3, true, '📊 Обрабатывает документы');
+      setAgent(1, true, '🦞 Patrolling Moltbook');
+      setAgent(2, true, '🌐 Surfing the web');
+      setAgent(3, true, '📊 Processing documents');
       setAgent(4, true, '⚙️ Web crawl');
-      setAgent(5, true, '₿ Торгует крипто');
-      setAgent(6, true, '📋 Анализирует рынок');
+      setAgent(5, true, '₿ Trading crypto');
+      setAgent(6, true, '📋 Analyzing market');
     });
 }
 
-// Первый запуск + обновление каждые 30 сек
+// Initial load + refresh every 30 sec
 loadStatus();
 setInterval(loadStatus, 30000);
 
@@ -578,13 +578,13 @@ function updateSecretary(data) {
   if (!secTask) return;
   const sub = data && data.subagent;
   if (sub && sub.status === 'active') {
-    secTask.textContent = '⚙️ ' + (sub.task || 'Работает');
+    secTask.textContent = '⚙️ ' + (sub.task || 'Working');
     secTask.style.color = '#aa66ff';
     let w = 0;
     const iv = setInterval(() => { w = (w + 3) % 100; if(secBar) secBar.style.width = w + '%'; }, 150);
     setTimeout(() => clearInterval(iv), 10000);
   } else {
-    secTask.textContent = '💤 Ожидание задачи';
+    secTask.textContent = '💤 Waiting for task';
     secTask.style.color = '#667799';
     if (secBar) secBar.style.width = '0%';
   }
@@ -599,15 +599,16 @@ window.setSecretaryTask = function(task) {
 
 // ── ACTIVITY LOG ──
 const AGENT_COLOR_MAP = {
-  'МОЛТБУК':    '#ff4466',
-  'ПОМОЩНИК':   '#ff8800',
-  'СЕКРЕТАРЬ':  '#ffcc00',
-  'РАЗВЕДЧИК':  '#44ff66',
+  'MOLTBOOK':   '#ff4466',
+  'ASSISTANT':  '#ff8800',
+  'SECRETARY':  '#ffcc00',
+  'SCOUT':      '#44ff66',
   'KRAKEN':     '#00ffcc',
-  'АНАЛИТИК':   '#8844ff',
-  'КАЛШИ':      '#aaffaa',
-  'ЮРИСТ':      '#66aaff',
-  'МАРКЕТОЛОГ': '#ff66aa',
+  'ANALYST':    '#8844ff',
+  'KALSHI':     '#aaffaa',
+  'LAWYER':     '#66aaff',
+  'MARKETER':   '#ff66aa',
+  'System':     '#44cc88',
   // Legacy keys for backwards compat with old activity.json
   'Robo-1':'#ff4466','Robo-2':'#ff8800','Robo-3':'#ffcc00',
   'Robo-4':'#44ff66','Robo-5':'#00ffcc','Robo-6':'#00aaff',
@@ -620,8 +621,8 @@ const AGENT_COLOR_MAP = {
 let lastActivityTs = null;
 
 function getEntryClass(msg) {
-  if (/система|онлайн|обновл/i.test(msg)) return 'sys';
-  if (/⚠️|warn|ошиб|err/i.test(msg)) return 'warn';
+  if (/system|online|updat/i.test(msg)) return 'sys';
+  if (/⚠️|warn|error|err/i.test(msg)) return 'warn';
   if (/❌|fail|criti/i.test(msg)) return 'error';
   return '';
 }
@@ -644,7 +645,7 @@ function renderActivity(entries) {
   log.innerHTML = html;
 
   const countEl = document.getElementById('act-count');
-  if (countEl) countEl.textContent = `${entries.length} записей`;
+  if (countEl) countEl.textContent = `${entries.length} entries`;
 
   if (entries.length > 0) lastActivityTs = entries[0].ts;
 }

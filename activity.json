@@ -1,5 +1,5 @@
 [
-  {"ts": "11:30", "agent": "Система", "msg": "🟢 Крипто-боты онлайн — сканирование каждые 5 минут"},
-  {"ts": "11:22", "agent": "Robo-5", "msg": "🔍 Просканировано 618 пар — сигналов нет"},
-  {"ts": "11:20", "agent": "Система", "msg": "⚙️ Robo-7 (BTC/ETH) отключён — бюджет направлен на альты и шиткоины"}
+  {"ts": "11:30", "agent": "System", "msg": "🟢 Crypto bots online — scanning every 5 minutes"},
+  {"ts": "11:22", "agent": "Robo-5", "msg": "🔍 Scanned 618 pairs — no signals"},
+  {"ts": "11:20", "agent": "System", "msg": "⚙️ Robo-7 (BTC/ETH) disabled — budget redirected to alts and shitcoins"}
 ]
