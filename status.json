@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-13T18:28:08.671Z",
+  "updated": "2026-03-13T18:30:03.054Z",
   "subagent": {
     "status": "idle",
     "task": "Ожидание задачи"
@@ -28,22 +28,22 @@
     {
       "name": "Robo-5",
       "status": "active",
-      "task": "Сканирует шиткоины (618 пар)"
+      "task": "Сканирует шиткоины 24/7"
     },
     {
       "name": "Robo-6",
       "status": "active",
-      "task": "Сканирует топ альты (SOL/ADA/XRP...)"
+      "task": "Сканирует топ альты 24/7"
     },
     {
       "name": "Robo-7",
-      "status": "active",
-      "task": "Мониторит BTC/ETH (RSI + EMA)"
+      "status": "idle",
+      "task": "Отключён (BTC/ETH — малый бюджет)"
     },
     {
       "name": "Robo-8",
       "status": "active",
-      "task": "Трейдер — ждёт сигналов, контролит выходы"
+      "task": "Трейдер — ждёт сигналов 24/7"
     },
     {
       "name": "Robo-9",
