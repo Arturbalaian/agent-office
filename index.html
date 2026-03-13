@@ -433,6 +433,8 @@ function loadStatus() {
   fetch('./status.json?t=' + Date.now())
     .then(r => r.json())
     .then(data => {
+      // Обновляем секретаря
+      if (data.subagent) updateSecretary(data);
       const list = Array.isArray(data) ? data : (data.agents || []);
       list.forEach((item, i) => {
         if (i >= agents.length) return;
