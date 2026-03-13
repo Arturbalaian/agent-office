@@ -1,5 +1,10 @@
 [
   {
+    "ts": "14:19",
+    "agent": "KRAKEN",
+    "msg": "🔍 17 signals: AI3USD BUY, ALICEUSD BUY, ALPHAUSD SELL, BANANAS31USD SELL, CAMPUSD BUY +12 more"
+  },
+  {
     "ts": "14:14",
     "agent": "KRAKEN",
     "msg": "🔍 17 signals: AI3USD BUY, ALICEUSD BUY, ALPHAUSD SELL, BANANAS31USD SELL, CAMPUSD BUY +12 more"
@@ -143,10 +148,5 @@
     "ts": "13:14",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: LIONUSD — Kraken: EAccount:Invalid permissions:LION trading restricted for US:CA."
-  },
-  {
-    "ts": "13:14",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: GWEIUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
   }
 ]
