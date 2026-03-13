@@ -126,6 +126,53 @@ body {
 .dir-act-wrap { width:90%; background:#1a1030; border:1px solid #332255; height:5px; border-radius:3px; overflow:hidden; }
 .dir-act { height:100%; background:#cc88ff; border-radius:3px; animation:actrun 2s ease-in-out infinite; box-shadow:0 0 4px #cc88ff; }
 
+/* ── ACTIVITY LOG ── */
+.activity-panel {
+  background: #080814;
+  border-color: #1a3040;
+}
+.activity-log {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  padding: 2px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #1a3040 #080814;
+}
+.activity-log::-webkit-scrollbar { width: 4px; }
+.activity-log::-webkit-scrollbar-track { background: #080814; }
+.activity-log::-webkit-scrollbar-thumb { background: #1a3040; border-radius: 2px; }
+.act-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1.4;
+  border-left: 2px solid transparent;
+  transition: background .2s;
+}
+.act-entry:hover { background: #0d0d20; }
+.act-entry.new-entry { animation: fadeIn .4s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+.act-ts { color: #334455; font-size: 9px; flex-shrink: 0; min-width: 34px; }
+.act-agent { font-weight: bold; font-size: 9px; flex-shrink: 0; min-width: 56px; }
+.act-msg { color: #aabbcc; flex: 1; }
+.act-entry.sys .act-msg { color: #44cc88; }
+.act-entry.warn .act-msg { color: #ffcc44; }
+.act-entry.error .act-msg { color: #ff5566; }
+.act-panel-title {
+  font-size: 9px; color: #445566; letter-spacing: 2px;
+  margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+}
+.act-badge {
+  background: #0d2030; border: 1px solid #1a4060; color: #44aacc;
+  font-size: 8px; padding: 1px 5px; border-radius: 10px;
+}
+
 /* ── TICKER ── */
 .ticker { position:fixed; bottom:0; left:0; right:0; height:34px; background:#0d0d25; border-top:2px solid #00ff88; display:flex; align-items:center; overflow:hidden; }
 .ticker-tag { background:#00ff88; color:#07071a; font-size:9px; font-weight:bold; padding:0 8px; height:100%; display:flex; align-items:center; flex-shrink:0; letter-spacing:1px; }
@@ -206,6 +253,19 @@ body {
     </div>
 
   </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="zone activity-panel">
+    <div class="zone-label">📋 АКТИВНОСТЬ</div>
+    <div class="act-panel-title">
+      <span>ЛОГ АГЕНТОВ</span>
+      <span class="act-badge" id="act-count">0 записей</span>
+    </div>
+    <div class="activity-log" id="activity-log">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
 </div>
 
 <!-- TICKER -->
@@ -490,6 +550,66 @@ window.setSecretaryTask = function(task) {
   if (el) { el.textContent = '⚙️ ' + task; el.style.color = '#aa66ff'; }
   if (bar) { bar.style.width = '75%'; }
 };
+
+// ── ACTIVITY LOG ──
+const AGENT_COLOR_MAP = {
+  'Robo-1': '#ff4466',  'Robo-2': '#ff8800',  'Robo-3': '#ffcc00',
+  'Robo-4': '#44ff66',  'Robo-5': '#00ffcc',  'Robo-6': '#00aaff',
+  'Robo-7': '#8844ff',  'Robo-8': '#ff44cc',  'Robo-9': '#aaffaa',
+  'Robo-10': '#ff6644', 'Система': '#44cc88',
+};
+
+let lastActivityTs = null;
+
+function getEntryClass(msg) {
+  if (/система|онлайн|обновл/i.test(msg)) return 'sys';
+  if (/⚠️|warn|ошиб|err/i.test(msg)) return 'warn';
+  if (/❌|fail|criti/i.test(msg)) return 'error';
+  return '';
+}
+
+function renderActivity(entries) {
+  const log = document.getElementById('activity-log');
+  if (!log) return;
+
+  // Build HTML for all entries (newest first — column-reverse handles display)
+  const html = entries.map((e, i) => {
+    const color = AGENT_COLOR_MAP[e.agent] || '#6699aa';
+    const cls = getEntryClass(e.msg);
+    const isNew = i === 0 && lastActivityTs !== null && e.ts !== lastActivityTs;
+    return `<div class="act-entry${cls ? ' '+cls : ''}${isNew ? ' new-entry' : ''}" style="border-left-color:${color}22">
+      <span class="act-ts">${e.ts}</span>
+      <span class="act-agent" style="color:${color}">${e.agent}</span>
+      <span class="act-msg">${e.msg}</span>
+    </div>`;
+  }).join('');
+
+  log.innerHTML = html;
+
+  const countEl = document.getElementById('act-count');
+  if (countEl) countEl.textContent = `${entries.length} записей`;
+
+  if (entries.length > 0) lastActivityTs = entries[0].ts;
+}
+
+function loadActivity() {
+  fetch('./activity.json?t=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      if (Array.isArray(data)) renderActivity(data);
+    })
+    .catch(() => {
+      // fallback: try activity from status.json
+      fetch('./status.json?t=' + Date.now())
+        .then(r => r.json())
+        .then(d => { if (Array.isArray(d.activity)) renderActivity(d.activity); })
+        .catch(() => {});
+    });
+}
+
+// Initial load + poll every 5s
+loadActivity();
+setInterval(loadActivity, 5000);
 
 </script>
 </body>
