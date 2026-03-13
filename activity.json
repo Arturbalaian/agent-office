@@ -2,6 +2,11 @@
   {
     "ts": "13:05",
     "agent": "KRAKEN",
+    "msg": "🔍 16 signals: AI3USD BUY, AVAAIUSD BUY, BANANAS31USD SELL, CATUSD SELL, DMCUSD SELL +11 more"
+  },
+  {
+    "ts": "13:05",
+    "agent": "KRAKEN",
     "msg": "⚠️ Order failed: ZROUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
   },
   {
