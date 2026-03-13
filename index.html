@@ -4,867 +4,680 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Agent HQ">
 <title>Agent HQ</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { width:100%; height:100%; overflow:hidden; background:#f2e8d5; }
-#canvas { display:block; width:100%; height:100%; }
-.hud {
-  position:fixed; top:0; left:0; right:0; height:38px;
-  background:rgba(255,255,255,.88); backdrop-filter:blur(10px);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 16px; z-index:10; pointer-events:none;
-  border-bottom:1px solid rgba(0,0,0,.06);
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:#1a0e06;display:flex;justify-content:center;align-items:stretch;overflow:hidden;}
+#wrap{position:relative;width:100%;height:100%;display:flex;justify-content:center;align-items:center;}
+#canvas{display:block;height:100%;width:auto;max-width:100%;}
+/* On desktop – constrain to 9:16 */
+@media(min-aspect-ratio:9/16){
+  #canvas{width:calc(100vh * 9 / 16);height:100%;}
 }
-.hud-title { font:bold 13px/1 'Courier New',monospace; color:#2244aa; letter-spacing:3px; }
-.hud-right { font:10px/1 'Courier New',monospace; color:#888; display:flex; gap:12px; align-items:center; }
-.live { display:inline-block; width:7px; height:7px; background:#ff4444; border-radius:50%;
-  animation:blink .9s infinite; margin-right:4px; vertical-align:middle; }
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
-.ticker {
-  position:fixed; bottom:0; left:0; right:0;
-  font:9px/1 'Courier New',monospace; color:#aaa;
-  padding:7px 10px; background:rgba(255,255,255,.85); backdrop-filter:blur(6px);
-  white-space:nowrap; overflow:hidden; z-index:10;
-  border-top:1px solid rgba(0,0,0,.05);
-}
-.ticker-inner { display:inline-block; animation:tick 50s linear infinite; }
-@keyframes tick{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+.hud{position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:calc(min(100vw, 100vh * 9/16));
+  height:44px;background:rgba(255,252,245,.92);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:10;pointer-events:none;
+  border-bottom:1px solid rgba(180,140,80,.2);}
+.hud-title{font:bold 13px/1 'Courier New',monospace;color:#8b5e1a;letter-spacing:2px;}
+.hud-right{font:10px/1 'Courier New',monospace;color:#aaa;display:flex;gap:10px;align-items:center;}
+.live{display:inline-block;width:7px;height:7px;background:#ff4444;border-radius:50%;
+  animation:blink .9s infinite;margin-right:4px;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.panel{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:calc(min(100vw, 100vh * 9/16));
+  background:rgba(255,252,245,.92);backdrop-filter:blur(10px);
+  padding:7px 8px 10px;z-index:10;border-top:1px solid rgba(180,140,80,.2);}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:380px;margin:0 auto;}
+.pcard{background:rgba(255,248,235,.95);border:1px solid rgba(200,160,80,.3);
+  border-radius:6px;padding:4px 5px;display:flex;flex-direction:column;gap:2px;}
+.pcard.active{border-color:rgba(80,180,80,.5);background:rgba(235,255,235,.95);}
+.ptop{display:flex;align-items:center;gap:4px;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.pname{font:bold 7px/1 'Courier New',monospace;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ptask{font:6px/1.2 'Courier New',monospace;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pbar-bg{height:3px;background:rgba(0,0,0,.08);border-radius:2px;overflow:hidden;}
+.pbar{height:100%;border-radius:2px;transition:width .5s ease;}
 </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
-<div class="hud">
-  <div class="hud-title">🏢 AGENT HQ</div>
-  <div class="hud-right">
-    <span id="actlbl">0 active</span>
-    <span><span class="live"></span><span id="clk">--:--</span></span>
+<div id="wrap">
+  <canvas id="canvas"></canvas>
+  <div class="hud">
+    <div class="hud-title">🏢 AGENT HQ</div>
+    <div class="hud-right">
+      <span><span class="live"></span>LIVE</span>
+      <span id="hud-time">--:--</span>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="pgrid" id="pgrid"></div>
   </div>
 </div>
-<div class="ticker"><span class="ticker-inner" id="ticker">...</span></div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script>
+window.addEventListener('error', e => { document.body.style.background='red'; console.error('GLOBAL ERROR', e.message, e.filename, e.lineno); });
+window.addEventListener('unhandledrejection', e => { document.body.style.background='orange'; console.error('UNHANDLED REJECTION', e.reason); });
+</script>
 <script type="module">
-window.addEventListener('error', e => { document.body.style.background='#fee'; document.body.innerHTML='<pre style="color:red;padding:20px">'+e.message+'\n'+e.filename+':'+e.lineno+'</pre>'; });
 import * as THREE from 'three';
-try {
+console.log('Three.js loaded:', THREE.REVISION);
 
-// ═══════════ AGENT DATA ═══════════
-const SKIN  = ['#ffcc99','#f5cba7','#e8b88a','#d4956a','#c68642','#8d5524','#ffe0bd','#ffd5b5','#ffcba4','#b5835a'];
-const HAIR  = ['#1a0a00','#8B4513','#222','#c8360a','#3a3a5a','#c8c8c8','#6b0000','#2a2a2a','#111','#4a3020'];
-const SHIRT = ['#e84040','#3399ff','#44cc44','#ffaa22','#cc44cc','#ff6699','#22aacc','#ff8833','#7744cc','#33bb88'];
+// ═══ AGENT DATA ═══
+const agents = [
+  {name:'Robo-1', status:'active',  task:'Data analysis',  color:0xee4444, hair:0x1a0a00, skin:0xffcc99},
+  {name:'Robo-2', status:'active',  task:'Skill scouting', color:0x44bb55, hair:0x2a1800, skin:0xf5b570},
+  {name:'Robo-3', status:'idle',    task:'Idle',           color:0x9955dd, hair:0x7a3c1a, skin:0xffdbac},
+  {name:'Robo-4', status:'active',  task:'Web crawl',      color:0x4488ff, hair:0xf0d080, skin:0xffcc99},
+  {name:'Robo-5', status:'active',  task:'Scheduling',     color:0xffaa22, hair:0x1a0a00, skin:0xc68642},
+  {name:'Robo-6', status:'idle',    task:'Idle',           color:0x22cccc, hair:0x0a0505, skin:0x8d5524},
+  {name:'Robo-7', status:'active',  task:'Moltbook',       color:0xff77aa, hair:0x8b1a00, skin:0xffdbac},
+  {name:'Robo-8', status:'active',  task:'Report gen',     color:0x5599ff, hair:0xcc3300, skin:0xf1c27d},
+  {name:'Robo-9', status:'idle',    task:'Idle',           color:0x55cc44, hair:0x2a1800, skin:0xffcc99},
+  {name:'Robo-10',status:'active',  task:'Monitoring',     color:0xff5533, hair:0x3d1a00, skin:0xc68642},
+];
 
-const agents = Array.from({length:10},(_,i)=>({
-  id:i+1, name:`Robo-${i+1}`,
-  skin:SKIN[i], hair:HAIR[i], shirt:SHIRT[i],
-  status:'idle', task:'Свободен', phase:Math.random()*Math.PI*2,
-  humanGroup:null, humanHead:null, state:'desk',
-  deskPos:{x:0,z:0}, targetPos:{x:0,z:0},
-  restSpotIdx:-1, walkSpeed:1.1+Math.random()*.5, bubble:null
-}));
+// ═══ STATUS JSON (optional) ═══
+fetch('./status.json').then(r=>r.json()).then(d=>{
+  if(Array.isArray(d)) d.forEach((item,i)=>{ if(i<agents.length){ agents[i].status=item.status||agents[i].status; agents[i].task=item.task||agents[i].task; } });
+  rebuildPanel();
+}).catch(()=>rebuildPanel());
 
-function setAgent(id,status,task){
-  const a=agents.find(x=>x.id===id); if(!a) return;
-  a.status=status; a.task=task;
-  document.getElementById('actlbl').textContent=`${agents.filter(x=>x.status==='active').length} active`;
-  document.getElementById('ticker').textContent=agents.map(x=>`${x.name}: ${x.task}`).join('   ·   ');
+// ═══ THREE.JS SETUP ═══
+const canvas = document.getElementById('canvas');
+
+function getSize(){
+  const wrap = document.getElementById('wrap');
+  const ww = wrap.clientWidth, wh = wrap.clientHeight;
+  const targetAR = 9/16;
+  if(ww/wh > targetAR){ return {w: Math.floor(wh*targetAR), h: wh}; }
+  return {w: ww, h: Math.floor(ww/targetAR)};
 }
-setAgent(1,'active','🦞 Moltbook patrol');
-setAgent(2,'active','🌐 Web recon');
-setAgent(3,'active','📊 Data analysis');
 
-setInterval(()=>{
-  const d=new Date();
-  document.getElementById('clk').textContent=d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-},1000);
-
-// ═══════════ SCENE ═══════════
-const cv=document.getElementById('canvas');
-const W=()=>window.innerWidth, H=()=>window.innerHeight;
-const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(W(),H());
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=0.85;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xf2e4cc);
-scene.fog=new THREE.Fog(0xf2e4cc,40,80);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xfff8ef);
+scene.fog = new THREE.Fog(0xfff8ef, 28, 55);
 
-// Camera: isometric from upper-right, looking toward back-left (like reference)
-const camera=new THREE.PerspectiveCamera(38,W()/H(),.1,100);
-camera.position.set(11,13,11);
-camera.lookAt(-1,0,-3);
-window.addEventListener('resize',()=>{renderer.setSize(W(),H());camera.aspect=W()/H();camera.updateProjectionMatrix();});
+const sz = getSize();
+renderer.setSize(sz.w, sz.h);
+const camera = new THREE.PerspectiveCamera(48, 9/16, 0.1, 80);
+camera.position.set(6, 17, 17);
+camera.lookAt(0, 1, -1);
 
-// ═══════════ LIGHTING ═══════════
-scene.add(new THREE.AmbientLight(0xfff8f0,.5));
+window.addEventListener('resize', ()=>{
+  const s = getSize();
+  renderer.setSize(s.w, s.h);
+  // camera AR stays 9/16
+});
 
-const sun=new THREE.DirectionalLight(0xffe8bb,1.2);
-sun.position.set(-10,18,6); sun.castShadow=true;
+// ═══ LIGHTING ═══
+// Warm ambient
+scene.add(new THREE.AmbientLight(0xffeedd, 0.85));
+
+// Main sun (warm, from top-left window)
+const sun = new THREE.DirectionalLight(0xffd6a0, 2.2);
+sun.position.set(-8, 20, 5);
+sun.castShadow = true;
+sun.shadow.camera.left = -14; sun.shadow.camera.right = 14;
+sun.shadow.camera.top = 14; sun.shadow.camera.bottom = -14;
 sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-16; sun.shadow.camera.right=16;
-sun.shadow.camera.top=16; sun.shadow.camera.bottom=-16;
-sun.shadow.camera.far=50;
+sun.shadow.bias = -0.0008;
 scene.add(sun);
 
-const fillLight=new THREE.DirectionalLight(0xc8deff,.3); fillLight.position.set(10,12,-4); scene.add(fillLight);
+// Fill light (right side, cooler)
+const fill = new THREE.DirectionalLight(0xeef4ff, 0.55);
+fill.position.set(10, 8, -5); scene.add(fill);
 
-// Ceiling pendant lights (just point lights, fixtures already added separately)
-[[-4,5,.5],[0,5,-2],[4,5,-4],[0,5,4]].forEach(([x,y,z])=>{
-  const pl=new THREE.PointLight(0xffe8cc,.6,9); pl.position.set(x,y,z); scene.add(pl);
-});
+// Warm point lights (pendant lamps)
+const pendantPositions = [[-3,4.2,1],[1,4.2,1],[5,4.2,1],[-1,4.2,-4],[3,4.2,-4],[-3,4.2,-8],[3,4.2,-8]];
+pendantPositions.forEach(p=>{ const pl=new THREE.PointLight(0xffd080,0.9,7); pl.position.set(...p); scene.add(pl); });
 
-// ═══════════ MATERIALS ═══════════
-const M={
-  floor: new THREE.MeshStandardMaterial({color:0xc8a06a,roughness:.8}),
-  wall:  new THREE.MeshStandardMaterial({color:0xf5f0e8,roughness:.95}),
-  ceil:  new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),
-  glass: new THREE.MeshStandardMaterial({color:0xd8eeff,transparent:true,opacity:.28,roughness:0,metalness:.1}),
-  desk:  new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.45,metalness:.05}),
-  leg:   new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.7,roughness:.25}),
-  chair: new THREE.MeshStandardMaterial({color:0xd4b896,roughness:.7}),
-  chairD:new THREE.MeshStandardMaterial({color:0x888878,metalness:.5,roughness:.4}),
-  leaf:  new THREE.MeshStandardMaterial({color:0x3a8c3a,roughness:.8}),
-  pot:   new THREE.MeshStandardMaterial({color:0xfbfbfb,roughness:.6}),
-  sofa:  new THREE.MeshStandardMaterial({color:0xddd0b8,roughness:.8}),
-  sofaP: new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.85}),
-  wood:  new THREE.MeshStandardMaterial({color:0xc89060,roughness:.6}),
-  scrEdge:new THREE.MeshStandardMaterial({color:0x111118,roughness:.3,metalness:.4}),
-  cord:  new THREE.MeshStandardMaterial({color:0x222222}),
-  bulb:  new THREE.MeshStandardMaterial({color:0xffee99,emissive:0xffdd66,emissiveIntensity:.9}),
-  lamp:  new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:.5}),
-};
+// ═══ MATERIALS ═══
+const floorMat = new THREE.MeshStandardMaterial({color:0xc8955a,roughness:.65,metalness:.02});
+const wallMatLight = new THREE.MeshStandardMaterial({color:0xfff5e8,roughness:.9});
+const wallMatBack  = new THREE.MeshStandardMaterial({color:0xfaf0dc,roughness:.85});
+const deskMat  = new THREE.MeshStandardMaterial({color:0xfafafa,roughness:.5,metalness:.02});
+const deskLegMat = new THREE.MeshStandardMaterial({color:0xd0c8b8,roughness:.7,metalness:.1});
+const monitorMat = new THREE.MeshStandardMaterial({color:0x222222,roughness:.5,metalness:.3});
+const scrGlowMat = new THREE.MeshStandardMaterial({color:0x88aaff,emissive:new THREE.Color(0x5577cc),emissiveIntensity:.8,roughness:.2});
+const chairMat = new THREE.MeshStandardMaterial({color:0xa09080,roughness:.8});
+const chairLegMat = new THREE.MeshStandardMaterial({color:0x888880,roughness:.5,metalness:.4});
+const rugMat = new THREE.MeshStandardMaterial({color:0xeee0cc,roughness:1});
+const sofaMat = new THREE.MeshStandardMaterial({color:0xe8d9b8,roughness:.9});
+const pillowMat = new THREE.MeshStandardMaterial({color:0xfff8f0,roughness:.9});
+const tableMat = new THREE.MeshStandardMaterial({color:0xd4a96a,roughness:.6});
+const lampMat = new THREE.MeshStandardMaterial({color:0x333333,roughness:.5,metalness:.6});
+const lampShade = new THREE.MeshStandardMaterial({color:0xffeebb,emissive:new THREE.Color(0xffcc66),emissiveIntensity:.55,roughness:.7});
+const potMat = new THREE.MeshStandardMaterial({color:0xd2745e,roughness:.9});
+const leafMat = new THREE.MeshStandardMaterial({color:0x4a8a38,roughness:.85});
+const leafMat2 = new THREE.MeshStandardMaterial({color:0x3a7a2a,roughness:.85});
+const scrEdgeMat = new THREE.MeshStandardMaterial({color:0x2a2a35,roughness:.4,metalness:.5});
+const windowMat = new THREE.MeshStandardMaterial({color:0xd4efff,transparent:true,opacity:.22,roughness:0,metalness:.05});
+const frameMat  = new THREE.MeshStandardMaterial({color:0xf5f0e5,roughness:.7});
 
-// ═══════════ HELPERS ═══════════
-function box(w,h,d,mat,x=0,y=0,z=0,rx=0,ry=0,rz=0,shadow=true){
+// ═══ HELPERS ═══
+function box(w,h,d,mat,x,y,z,rx=0,ry=0,rz=0,cast=true,receive=true){
   const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
   m.position.set(x,y,z); m.rotation.set(rx,ry,rz);
-  if(shadow){m.castShadow=true;m.receiveShadow=true;}
-  scene.add(m); return m;
+  m.castShadow=cast; m.receiveShadow=receive; scene.add(m); return m;
 }
-function cyl(rt,rb,h,seg,mat,x=0,y=0,z=0,shadow=true){
+function cyl(rt,rb,h,seg,mat,x,y,z,cast=true){
   const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);
-  m.position.set(x,y,z); if(shadow){m.castShadow=true;m.receiveShadow=true;}
-  scene.add(m); return m;
+  m.position.set(x,y,z); m.castShadow=cast; m.receiveShadow=true; scene.add(m); return m;
 }
-function sph(r,mat,x=0,y=0,z=0){
-  const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),mat);
-  m.position.set(x,y,z); m.castShadow=true; scene.add(m); return m;
+function sph(r,seg,mat,x,y,z,cast=true){
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,seg,seg*3/4),mat);
+  m.position.set(x,y,z); m.castShadow=cast; m.receiveShadow=false; scene.add(m); return m;
 }
 
-// ═══════════ ROOM ═══════════
-box(32,.2,32,M.floor,0,-.1,0);
-// Back wall (visible from above-front angle)
-box(32,6,.3,M.wall,0,3,-11);
-// Left wall (glass/window wall) - just a hint, visible from side
-box(.3,6,32,M.wall,-11,3,0);
+// ═══ ROOM ═══
+// Floor
+box(32,0.18,30,floorMat,0,-0.09,-2,0,0,0,false,true);
 
-// Left windows (glass + frames)
-[[-2,3.5],[2,3.5],[6,3.5]].forEach(([z,y])=>{
-  box(.08,4,2.6,M.glass,-10.85,y,z);
-  box(.2,4.2,.12,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y,z-1.35);
-  box(.2,4.2,.12,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y,z+1.35);
-  box(.2,.12,2.6,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y+2.1,z);
-  box(.2,.12,2.6,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y-2.1,z);
+// Back wall
+box(32,10,0.25,wallMatBack,0,5,-12,0,0,0,false,true);
+// Left wall
+box(0.25,10,30,wallMatLight,-9,5,-2,0,0,0,false,true);
+// Right wall (partial - open/window side)
+box(0.25,10,12,wallMatLight,9,5,-8,0,0,0,false,true);
+
+// ═══ WINDOWS (left wall) ═══
+[[-9,1,0],[-9,1,-5],[-9,1,-10]].forEach(([x,y,z])=>{
+  box(0.1,3.5,3.5,windowMat,x,4+y,z+1);
+  // window frame
+  box(0.15,3.7,0.15,frameMat,x,4+y,-1+z);
+  box(0.15,3.7,0.15,frameMat,x,4+y,1+z);
+  box(0.15,0.15,3.7,frameMat,x,5.8+y,z);
+  box(0.15,0.15,3.7,frameMat,x,2.3+y,z);
 });
 
-// ═══════════ PENDANT LIGHTS ═══════════
-[[-7,7],[-4,7],[-1,7],[2,-2],[5,-5],[8,-8],[5,5]].forEach(([x,z])=>{
-  cyl(.018,.018,2.2,6,M.cord,x,6.9,z);
-  sph(.17,M.bulb,x,5.7,z);
-  const pl=new THREE.PointLight(0xffeebb,.9,6); pl.position.set(x,5.5,z); scene.add(pl);
-});
+// Right wall windows
+box(3.5,3.5,0.1,windowMat,9,3.8,-1);
+box(3.5,3.5,0.1,windowMat,9,3.8,-6);
 
-// ═══════════ PLANTS ═══════════
-function makePlant(x,z,s=1){
-  cyl(.22*s,.25*s,.42*s,12,M.pot,x,.21*s,z);
-  sph(.38*s,M.leaf,x,.68*s,z);
-  sph(.28*s,M.leaf,x+.22*s,.56*s,z+.08*s);
-  sph(.24*s,M.leaf,x-.18*s,.54*s,z-.14*s);
-  sph(.2*s,M.leaf,x+.1*s,.78*s,z-.18*s);
+// ═══ PENDANT LAMPS ═══
+function makePendant(x,z){
+  const g=new THREE.Group();
+  // Cord
+  const cord=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,3.2,6),lampMat);
+  cord.position.y=-1.6; g.add(cord);
+  // Shade
+  const shade=new THREE.Mesh(new THREE.CylinderGeometry(.25,.08,.28,16,1,true),lampShade);
+  shade.rotation.x=Math.PI; shade.position.y=-3.3; g.add(shade);
+  // Bulb
+  const bulb=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),lampShade);
+  bulb.position.y=-3.15; g.add(bulb);
+  g.position.set(x,7.2,z); scene.add(g); return g;
 }
-makePlant(-9.5,-8,1.8); makePlant(-10.2,-2,1.6); makePlant(-9.8,5,1.5);
-makePlant(8.5,-9,1.4); makePlant(9,-4,1.2);
-makePlant(-7,8,1.1); makePlant(5,8,1.0); makePlant(-2,-9,.9);
+[[-3,1],[1,1],[5,1],[-1,-4],[3,-4],[-3,-8],[3,-8],[0,-10]].forEach(([x,z])=>makePendant(x,z));
 
-// ═══════════ BIG SCREEN ═══════════
-const SC_W=512,SC_H=256;
-const bigC=document.createElement('canvas'); bigC.width=SC_W; bigC.height=SC_H;
-const bigCtx=bigC.getContext('2d');
-const bigTex=new THREE.CanvasTexture(bigC);
-
-function drawBigScreen(t){
-  const ctx=bigCtx;
-  ctx.fillStyle='#1e3a6e'; ctx.fillRect(0,0,SC_W,SC_H);
-  ctx.fillStyle='#2a5aaa'; ctx.fillRect(0,0,SC_W,20);
-  ctx.fillStyle='#ffffff'; ctx.font='bold 11px monospace';
-  ctx.fillText('AGENT STATUS MONITOR',8,14);
-  const now=new Date();
-  ctx.textAlign='right'; ctx.fillStyle='#aaccff'; ctx.font='9px monospace';
-  ctx.fillText(now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),SC_W-6,14);
-  ctx.textAlign='left';
-  ctx.strokeStyle='rgba(255,255,255,.07)'; ctx.lineWidth=.5;
-  for(let xi=0;xi<=SC_W;xi+=SC_W/8){ctx.beginPath();ctx.moveTo(xi,20);ctx.lineTo(xi,SC_H);ctx.stroke();}
-  for(let yi=20;yi<=SC_H;yi+=40){ctx.beginPath();ctx.moveTo(0,yi);ctx.lineTo(SC_W,yi);ctx.stroke();}
-  const CW=SC_W/5, CH=(SC_H-24)/2;
-  agents.forEach((a,i)=>{
-    const col=i%5, row=Math.floor(i/5);
-    const x=col*CW+3, y=24+row*CH+3, w=CW-6, h=CH-6;
-    const active=a.status==='active';
-    ctx.fillStyle=active?'#1a5c32':'#1a2a4a';
-    ctx.beginPath(); ctx.rect(x,y,w,h); ctx.fill();
-    ctx.strokeStyle=active?'#00ee66':'#3355aa';
-    ctx.lineWidth=1.2; ctx.beginPath(); ctx.rect(x,y,w,h); ctx.stroke();
-    ctx.fillStyle=active?'#00ff66':'#4466aa';
-    ctx.beginPath(); ctx.arc(x+9,y+10,4,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ffffff'; ctx.font='bold 9px monospace';
-    ctx.fillText(a.name,x+17,y+13);
-    const tk=(a.task||'').replace(/[\u0080-\uffff]/g,'').trim();
-    ctx.fillStyle=active?'#88ffcc':'#7799bb'; ctx.font='8px monospace';
-    ctx.fillText((tk||'Idle').slice(0,12),x+5,y+25);
-    ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(x+5,y+h-12,w-10,6);
-    if(active){ const p=.3+(Math.sin(t*1.6+i*.8)+1)/2*.7; ctx.fillStyle='#00ff88'; ctx.fillRect(x+5,y+h-12,(w-10)*p,6); }
-  });
-  const wY=SC_H-40;
-  ctx.fillStyle='rgba(0,20,60,.5)'; ctx.fillRect(0,wY,SC_W,40);
-  ctx.fillStyle='#99ccff'; ctx.font='8px monospace'; ctx.fillText('LOAD',6,wY+11);
-  ctx.beginPath(); ctx.moveTo(0,wY+24-Math.sin(t)*9);
-  for(let xi=0;xi<=SC_W;xi+=2) ctx.lineTo(xi,wY+24-Math.sin(xi/SC_W*Math.PI*7+t)*9);
-  ctx.lineTo(SC_W,wY+40); ctx.lineTo(0,wY+40); ctx.closePath();
-  ctx.fillStyle='rgba(80,180,255,.25)'; ctx.fill();
-  ctx.strokeStyle='#66bbff'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(0,wY+24-Math.sin(t)*9);
-  for(let xi=0;xi<=SC_W;xi+=2) ctx.lineTo(xi,wY+24-Math.sin(xi/SC_W*Math.PI*7+t)*9);
-  ctx.stroke();
-  bigTex.needsUpdate=true;
-  // old header replaced below
-}"ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Agent HQ">
-<title>Agent HQ</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { width:100%; height:100%; overflow:hidden; background:#f2e8d5; }
-#canvas { display:block; width:100%; height:100%; }
-.hud {
-  position:fixed; top:0; left:0; right:0; height:38px;
-  background:rgba(255,255,255,.88); backdrop-filter:blur(10px);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 16px; z-index:10; pointer-events:none;
-  border-bottom:1px solid rgba(0,0,0,.06);
-}
-.hud-title { font:bold 13px/1 'Courier New',monospace; color:#2244aa; letter-spacing:3px; }
-.hud-right { font:10px/1 'Courier New',monospace; color:#888; display:flex; gap:12px; align-items:center; }
-.live { display:inline-block; width:7px; height:7px; background:#ff4444; border-radius:50%;
-  animation:blink .9s infinite; margin-right:4px; vertical-align:middle; }
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
-.ticker {
-  position:fixed; bottom:0; left:0; right:0;
-  font:9px/1 'Courier New',monospace; color:#aaa;
-  padding:7px 10px; background:rgba(255,255,255,.85); backdrop-filter:blur(6px);
-  white-space:nowrap; overflow:hidden; z-index:10;
-  border-top:1px solid rgba(0,0,0,.05);
-}
-.ticker-inner { display:inline-block; animation:tick 50s linear infinite; }
-@keyframes tick{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
-</style>
-</head>
-<body>
-<canvas id="canvas"></canvas>
-<div class="hud">
-  <div class="hud-title">🏢 AGENT HQ</div>
-  <div class="hud-right">
-    <span id="actlbl">0 active</span>
-    <span><span class="live"></span><span id="clk">--:--</span></span>
-  </div>
-</div>
-<div class="ticker"><span class="ticker-inner" id="ticker">...</span></div>
-
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
-<script type="module">
-window.addEventListener('error', e => { document.body.style.background='#fee'; document.body.innerHTML='<pre style="color:red;padding:20px">'+e.message+'\n'+e.filename+':'+e.lineno+'</pre>'; });
-import * as THREE from 'three';
-try {
-
-// ═══════════ AGENT DATA ═══════════
-const SKIN  = ['#ffcc99','#f5cba7','#e8b88a','#d4956a','#c68642','#8d5524','#ffe0bd','#ffd5b5','#ffcba4','#b5835a'];
-const HAIR  = ['#1a0a00','#8B4513','#222','#c8360a','#3a3a5a','#c8c8c8','#6b0000','#2a2a2a','#111','#4a3020'];
-const SHIRT = ['#e84040','#3399ff','#44cc44','#ffaa22','#cc44cc','#ff6699','#22aacc','#ff8833','#7744cc','#33bb88'];
-
-const agents = Array.from({length:10},(_,i)=>({
-  id:i+1, name:`Robo-${i+1}`,
-  skin:SKIN[i], hair:HAIR[i], shirt:SHIRT[i],
-  status:'idle', task:'Свободен', phase:Math.random()*Math.PI*2,
-  humanGroup:null, humanHead:null, state:'desk',
-  deskPos:{x:0,z:0}, targetPos:{x:0,z:0},
-  restSpotIdx:-1, walkSpeed:1.1+Math.random()*.5, bubble:null
-}));
-
-function setAgent(id,status,task){
-  const a=agents.find(x=>x.id===id); if(!a) return;
-  a.status=status; a.task=task;
-  document.getElementById('actlbl').textContent=`${agents.filter(x=>x.status==='active').length} active`;
-  document.getElementById('ticker').textContent=agents.map(x=>`${x.name}: ${x.task}`).join('   ·   ');
-}
-setAgent(1,'active','🦞 Moltbook patrol');
-setAgent(2,'active','🌐 Web recon');
-setAgent(3,'active','📊 Data analysis');
-
-setInterval(()=>{
-  const d=new Date();
-  document.getElementById('clk').textContent=d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-},1000);
-
-// ═══════════ SCENE ═══════════
-const cv=document.getElementById('canvas');
-const W=()=>window.innerWidth, H=()=>window.innerHeight;
-const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(W(),H());
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=0.85;
-
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xf2e4cc);
-scene.fog=new THREE.Fog(0xf2e4cc,40,80);
-
-// Camera: isometric from upper-right, looking toward back-left (like reference)
-const camera=new THREE.PerspectiveCamera(38,W()/H(),.1,100);
-camera.position.set(11,13,11);
-camera.lookAt(-1,0,-3);
-window.addEventListener('resize',()=>{renderer.setSize(W(),H());camera.aspect=W()/H();camera.updateProjectionMatrix();});
-
-// ═══════════ LIGHTING ═══════════
-scene.add(new THREE.AmbientLight(0xfff8f0,.5));
-
-const sun=new THREE.DirectionalLight(0xffe8bb,1.2);
-sun.position.set(-10,18,6); sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-16; sun.shadow.camera.right=16;
-sun.shadow.camera.top=16; sun.shadow.camera.bottom=-16;
-sun.shadow.camera.far=50;
-scene.add(sun);
-
-const fillLight=new THREE.DirectionalLight(0xc8deff,.3); fillLight.position.set(10,12,-4); scene.add(fillLight);
-
-// Ceiling pendant lights (just point lights, fixtures already added separately)
-[[-4,5,.5],[0,5,-2],[4,5,-4],[0,5,4]].forEach(([x,y,z])=>{
-  const pl=new THREE.PointLight(0xffe8cc,.6,9); pl.position.set(x,y,z); scene.add(pl);
-});
-
-// ═══════════ MATERIALS ═══════════
-const M={
-  floor: new THREE.MeshStandardMaterial({color:0xc8a06a,roughness:.8}),
-  wall:  new THREE.MeshStandardMaterial({color:0xf5f0e8,roughness:.95}),
-  ceil:  new THREE.MeshStandardMaterial({color:0xffffff,roughness:1}),
-  glass: new THREE.MeshStandardMaterial({color:0xd8eeff,transparent:true,opacity:.28,roughness:0,metalness:.1}),
-  desk:  new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.45,metalness:.05}),
-  leg:   new THREE.MeshStandardMaterial({color:0xcccccc,metalness:.7,roughness:.25}),
-  chair: new THREE.MeshStandardMaterial({color:0xd4b896,roughness:.7}),
-  chairD:new THREE.MeshStandardMaterial({color:0x888878,metalness:.5,roughness:.4}),
-  leaf:  new THREE.MeshStandardMaterial({color:0x3a8c3a,roughness:.8}),
-  pot:   new THREE.MeshStandardMaterial({color:0xfbfbfb,roughness:.6}),
-  sofa:  new THREE.MeshStandardMaterial({color:0xddd0b8,roughness:.8}),
-  sofaP: new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.85}),
-  wood:  new THREE.MeshStandardMaterial({color:0xc89060,roughness:.6}),
-  scrEdge:new THREE.MeshStandardMaterial({color:0x111118,roughness:.3,metalness:.4}),
-  cord:  new THREE.MeshStandardMaterial({color:0x222222}),
-  bulb:  new THREE.MeshStandardMaterial({color:0xffee99,emissive:0xffdd66,emissiveIntensity:.9}),
-  lamp:  new THREE.MeshStandardMaterial({color:0xaaaaaa,metalness:.5}),
-};
-
-// ═══════════ HELPERS ═══════════
-function box(w,h,d,mat,x=0,y=0,z=0,rx=0,ry=0,rz=0,shadow=true){
-  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-  m.position.set(x,y,z); m.rotation.set(rx,ry,rz);
-  if(shadow){m.castShadow=true;m.receiveShadow=true;}
-  scene.add(m); return m;
-}
-function cyl(rt,rb,h,seg,mat,x=0,y=0,z=0,shadow=true){
-  const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat);
-  m.position.set(x,y,z); if(shadow){m.castShadow=true;m.receiveShadow=true;}
-  scene.add(m); return m;
-}
-function sph(r,mat,x=0,y=0,z=0){
-  const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),mat);
-  m.position.set(x,y,z); m.castShadow=true; scene.add(m); return m;
-}
-
-// ═══════════ ROOM ═══════════
-box(32,.2,32,M.floor,0,-.1,0);
-// Back wall (visible from above-front angle)
-box(32,6,.3,M.wall,0,3,-11);
-// Left wall (glass/window wall) - just a hint, visible from side
-box(.3,6,32,M.wall,-11,3,0);
-
-// Left windows (glass + frames)
-[[-2,3.5],[2,3.5],[6,3.5]].forEach(([z,y])=>{
-  box(.08,4,2.6,M.glass,-10.85,y,z);
-  box(.2,4.2,.12,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y,z-1.35);
-  box(.2,4.2,.12,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y,z+1.35);
-  box(.2,.12,2.6,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y+2.1,z);
-  box(.2,.12,2.6,new THREE.MeshStandardMaterial({color:0xeeeeee}),-10.9,y-2.1,z);
-});
-
-// ═══════════ PENDANT LIGHTS ═══════════
-[[-7,7],[-4,7],[-1,7],[2,-2],[5,-5],[8,-8],[5,5]].forEach(([x,z])=>{
-  cyl(.018,.018,2.2,6,M.cord,x,6.9,z);
-  sph(.17,M.bulb,x,5.7,z);
-  const pl=new THREE.PointLight(0xffeebb,.9,6); pl.position.set(x,5.5,z); scene.add(pl);
-});
-
-// ═══════════ PLANTS ═══════════
-function makePlant(x,z,s=1){
-  cyl(.22*s,.25*s,.42*s,12,M.pot,x,.21*s,z);
-  sph(.38*s,M.leaf,x,.68*s,z);
-  sph(.28*s,M.leaf,x+.22*s,.56*s,z+.08*s);
-  sph(.24*s,M.leaf,x-.18*s,.54*s,z-.14*s);
-  sph(.2*s,M.leaf,x+.1*s,.78*s,z-.18*s);
-}
-makePlant(-9.5,-8,1.8); makePlant(-10.2,-2,1.6); makePlant(-9.8,5,1.5);
-makePlant(8.5,-9,1.4); makePlant(9,-4,1.2);
-makePlant(-7,8,1.1); makePlant(5,8,1.0); makePlant(-2,-9,.9);
-
-// ═══════════ BIG SCREEN ═══════════
-const SC_W=512,SC_H=256;
-const bigC=document.createElement('canvas'); bigC.width=SC_W; bigC.height=SC_H;
-const bigCtx=bigC.getContext('2d');
-const bigTex=new THREE.CanvasTexture(bigC);
-
-function drawBigScreen(t){
-  const ctx=bigCtx;
-  // Background
-  ctx.fillStyle='#0d1940'; ctx.fillRect(0,0,SC_W,SC_H);
-  // Grid
-  ctx.strokeStyle='rgba(80,120,255,.06)'; ctx.lineWidth=1;
-  for(let x=0;x<=SC_W;x+=SC_W/8){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,SC_H);ctx.stroke();}
-  for(let y=0;y<=SC_H;y+=SC_H/5){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(SC_W,y);ctx.stroke();}
-
-  // Title bar
-  ctx.fillStyle='rgba(40,80,180,.4)'; ctx.fillRect(0,0,SC_W,18);
-  ctx.fillStyle='#88bbff'; ctx.font='bold 10px monospace';
-  ctx.fillText('◉  AGENT STATUS MONITOR  —  LIVE',8,12);
-
-  // Right time
-  const now=new Date();
-  ctx.textAlign='right';
-  ctx.fillStyle='#667799'; ctx.font='9px monospace';
-  ctx.fillText(now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),SC_W-6,12);
-  ctx.textAlign='left';
-
-  // Agent cards (5×2)
-  const CW=SC_W/5, CH=(SC_H-22)/2;
-  agents.forEach((a,i)=>{
-    const col=i%5, row=Math.floor(i/5);
-    const x=col*CW+3, y=22+row*CH+2, w=CW-6, h=CH-4;
-    const active=a.status==='active';
-
-    // Card
-    ctx.fillStyle=active?'rgba(0,60,30,.7)':'rgba(15,20,45,.6)';
-    ctx.beginPath(); ctx.rect(x,y,w,h,4); ctx.fill();
-    ctx.strokeStyle=active?'rgba(0,220,100,.45)':'rgba(60,80,140,.3)';
-    ctx.lineWidth=1; ctx.beginPath(); ctx.rect(x,y,w,h,4); ctx.stroke();
-
-    // Status dot
-    ctx.fillStyle=active?'#00ff77':'#334455';
-    ctx.beginPath(); ctx.arc(x+9,y+9,3.5,0,Math.PI*2); ctx.fill();
-    if(active){ ctx.strokeStyle='rgba(0,255,100,.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x+9,y+9,6,0,Math.PI*2); ctx.stroke(); }
-
-    // Name
-    ctx.fillStyle=active?'#88ffcc':'#99aacc'; ctx.font='bold 8px monospace';
-    ctx.fillText(a.name,x+17,y+12);
-
-    // Task
-    const tk=(a.task||'').replace(/[^\x00-\x7F]/g,'').trim();
-    const short=tk.length>13?tk.slice(0,12)+'…':tk;
-    ctx.fillStyle=active?'#44cc88':'#445566'; ctx.font='7px monospace';
-    ctx.fillText(short||'Idle',x+5,y+24);
-
-    // Activity bar bg
-    ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(x+5,y+h-12,w-10,5);
-    if(active){
-      const p=(Math.sin(t*1.8+i*.9)+1)/2;
-      const barG=ctx.createLinearGradient(x+5,0,x+5+w-10,0);
-      barG.addColorStop(0,'#00ff88'); barG.addColorStop(1,'#00ccff');
-      ctx.fillStyle=barG; ctx.fillRect(x+5,y+h-12,(w-10)*(.2+p*.8),5);
-    }
-  });
-
-  // Bottom activity wave
-  const wY=SC_H-38;
-  ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(0,wY,SC_W,38);
-  ctx.fillStyle='rgba(100,180,255,.5)'; ctx.font='7px monospace'; ctx.fillText('SYSTEM LOAD',6,wY+9);
-
-  // Wave
-  ctx.beginPath(); ctx.moveTo(0,wY+28);
-  for(let x=0;x<=SC_W;x+=3){
-    ctx.lineTo(x,wY+20-Math.sin(x/SC_W*Math.PI*8+t)*8-Math.sin(x/SC_W*Math.PI*3+t*.7)*4);
+// ═══ PLANTS ═══
+function makePalmPlant(x,z,h=3.2){
+  const g=new THREE.Group();
+  // Pot
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(.22,.17,.38,14),potMat);
+  pot.position.y=.19; g.add(pot);
+  // Trunk
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.055,.085,h,9),
+    new THREE.MeshStandardMaterial({color:0x8b6340,roughness:.9}));
+  trunk.position.y=.38+h/2; g.add(trunk);
+  // Leaves
+  const leafCount=5;
+  for(let i=0;i<leafCount;i++){
+    const leaf=new THREE.Mesh(new THREE.SphereGeometry(.55+Math.random()*.25,10,6),
+      i%2===0?leafMat:leafMat2);
+    const ang=i/leafCount*Math.PI*2;
+    leaf.scale.set(1,.25,1.8+Math.random()*.5);
+    leaf.position.set(Math.cos(ang)*.55,h+.2+Math.random()*.15,Math.sin(ang)*.55);
+    leaf.rotation.set(-.5+Math.random()*.3,ang,.2+Math.random()*.3);
+    g.add(leaf);
   }
-  ctx.lineTo(SC_W,wY+38); ctx.lineTo(0,wY+38); ctx.closePath();
-  const wg=ctx.createLinearGradient(0,wY,0,wY+38);
-  wg.addColorStop(0,'rgba(0,180,255,.35)'); wg.addColorStop(1,'rgba(0,50,200,.05)');
-  ctx.fillStyle=wg; ctx.fill();
-
-  bigTex.needsUpdate=true;
+  g.position.set(x,0,z); scene.add(g); return g;
 }
+function makeSmallPlant(x,z){
+  const g=new THREE.Group();
+  const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.10,.25,12),potMat);
+  pot.position.y=.125; g.add(pot);
+  const plant=new THREE.Mesh(new THREE.SphereGeometry(.22,10,8),leafMat);
+  plant.scale.set(1,.8,1);plant.position.y=.42; g.add(plant);
+  g.position.set(x,0,z); scene.add(g); return g;
+}
+makePalmPlant(-8.2,4.5,3.4); makePalmPlant(-8.2,-1,3.2); makePalmPlant(-8.2,-7.5,3.6);
+makePalmPlant(7.5,-2,2.8); makePalmPlant(7.5,-9.5,3.0);
+makeSmallPlant(-7.5,6.5); makeSmallPlant(0,-9.5); makeSmallPlant(5.5,3.5); makeSmallPlant(-1.5,6.5);
 
-// Pre-draw big screen
-drawBigScreen(0);
-
-// Screen mount
+// ═══ BIG CURVED SCREEN ═══
+const SC_W=640, SC_H=360;
+const bigC=document.createElement('canvas'); bigC.width=SC_W; bigC.height=SC_H;
+const bigCtx=bigC.getContext('2d');
+const bigTex=new THREE.CanvasTexture(bigC);
 const bigScrMat=new THREE.MeshStandardMaterial({
-  map:bigTex, emissiveMap:bigTex,
-  emissive:new THREE.Color(1,1,1), emissiveIntensity:1.2,
-  roughness:.2, color:new THREE.Color(0,0,0)
+  map:bigTex,emissiveMap:bigTex,
+  emissive:new THREE.Color(1,1,1),emissiveIntensity:1.4,
+  roughness:.1,color:new THREE.Color(0,0,0)
 });
-const bigScr=new THREE.Mesh(new THREE.BoxGeometry(9,3.5,.14),bigScrMat);
-bigScr.position.set(.5,4.3,-10.65); scene.add(bigScr);
-// Frame - 4 border strips
-box(9.4,.22,.2,M.scrEdge,.5,6.07,-10.62);  // top
-box(9.4,.22,.2,M.scrEdge,.5,2.54,-10.62);  // bottom
-box(.22,3.9,.2,M.scrEdge,-4.2,4.3,-10.62); // left
-box(.22,3.9,.2,M.scrEdge,5.2,4.3,-10.62);  // right
-// Screen glow
-const scrGlow=new THREE.PointLight(0x4488ff,.7,9); scrGlow.position.set(.5,4.1,-9.8); scene.add(scrGlow);
 
-// ═══════════ DIRECTOR AREA ═══════════
-// Platform
-box(6,.18,3.5,new THREE.MeshStandardMaterial({color:0xe0d0b0,roughness:.6}),1,.09,-7.5);
-// Director desk (big, white)
-box(3.5,.09,1.5,M.desk,1,.92,-6.8);
-[[-1.6,0,.65],[1.6,0,.65],[-1.6,0,-.65],[1.6,0,-.65]].forEach(([dx,_,dz])=>{
-  box(.07,.84,.07,M.leg,1+dx,.42,-6.8+dz);
+// 3-panel curved screen on back wall
+const panelW=4.5, panelH=2.6, panelD=.06;
+[-1,0,1].forEach(i=>{
+  const p=new THREE.Mesh(new THREE.BoxGeometry(panelW,panelH,panelD),bigScrMat);
+  p.position.set(i*panelW*.96, 5.4, -11.6);
+  p.rotation.y = i*-0.18;
+  p.castShadow=false; scene.add(p);
 });
+// Screen edge frame
+const sfm=scrEdgeMat;
+box(panelW*3.1,.08,.12,sfm,0,4.08,-11.55); // bottom
+box(panelW*3.1,.08,.12,sfm,0,6.73,-11.55); // top
+box(.1,2.75,.12,sfm,-panelW*1.52,5.4,-11.55); // left
+box(.1,2.75,.12,sfm, panelW*1.52,5.4,-11.55); // right
+// Screen glow on floor
+const glow=new THREE.PointLight(0x6699ff,.55,8); glow.position.set(0,5,-10); scene.add(glow);
+
+// ═══ DIRECTOR DESK ═══
+// Raised platform
+box(8,.12,5,new THREE.MeshStandardMaterial({color:0xd4a96a,roughness:.7}),-0.5,.06,-8.8);
+
+// Desk
+box(4,.1,1.8,deskMat,-0.5,.82,-8.2);
+box(3.6,.06,1.4,new THREE.MeshStandardMaterial({color:0xf0ede8,roughness:.4}),-0.5,.89,-8.2);
+// Desk legs
+[[-2.2,.46,-7.4],[-2.2,.46,-9.0],[1.2,.46,-7.4],[1.2,.46,-9.0]].forEach(([x,y,z])=>
+  cyl(.04,.04,.82,8,deskLegMat,x,y,z));
 // Director monitor
-const dirMonMat=new THREE.MeshStandardMaterial({color:0x080820,emissive:0x002255,emissiveIntensity:.6,roughness:.3});
-box(1.4,.9,.06,dirMonMat,1,1.62,-7.02);
-box(.1,.3,.06,M.leg,1,1.12,-7.02);
-// Stationery
-box(.4,.04,.25,new THREE.MeshStandardMaterial({color:0xeeeeee,roughness:.5}),2.2,.97,-6.8);
-box(.06,.08,.06,new THREE.MeshStandardMaterial({color:0x888}),-.4,1,-6.65);
+box(1.4,.06,.7,monitorMat,-0.5,1.0,-8.2);
+box(1.3,1.0,.04,monitorMat,-0.5,1.55,-7.88);
+box(.8,.06,.18,monitorMat,-0.5,1.0,-7.68);
+// Monitor screen glow
+box(1.2,.9,.02,scrGlowMat,-0.5,1.56,-7.86);
+// Items on desk
+sph(.06,8,new THREE.MeshStandardMaterial({color:0x44ff88,emissive:new THREE.Color(0x22aa44),emissiveIntensity:.8}),0.5,0.9,-8.0);
+box(.35,.02,.25,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.3}),-1.2,.91,-8.35);
 
-// Director chair
-function makeChair(x,z,ry=0,mat=M.chair){
-  const g=new THREE.Group(); scene.add(g);
+// ═══ CHAIR BUILDER ═══
+function makeChair(x,z,ry=0){
+  const g=new THREE.Group();
+  // Seat
+  const seat=new THREE.Mesh(new THREE.BoxGeometry(.52,.07,.52),chairMat);
+  seat.position.y=.46; g.add(seat);
+  // Seat cushion
+  const cush=new THREE.Mesh(new THREE.BoxGeometry(.48,.05,.48),
+    new THREE.MeshStandardMaterial({color:0xb8a898,roughness:.9}));
+  cush.position.y=.5; g.add(cush);
+  // Back rest
+  const back=new THREE.Mesh(new THREE.BoxGeometry(.52,.48,.06),chairMat);
+  back.position.set(0,.74,.27); g.add(back);
+  // Lumbar
+  const lumbar=new THREE.Mesh(new THREE.BoxGeometry(.48,.12,.04),
+    new THREE.MeshStandardMaterial({color:0x988878,roughness:.9}));
+  lumbar.position.set(0,.5,.28); g.add(lumbar);
+  // Legs
+  [-.2,.2].forEach(ox=>[-0.06,.32].forEach(oz=>{
+    const l=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.46,7),chairLegMat);
+    l.position.set(ox,.23,oz); g.add(l);
+  }));
   g.position.set(x,0,z); g.rotation.y=ry;
-  const seat=new THREE.Mesh(new THREE.BoxGeometry(.54,.1,.54),mat);
-  seat.position.y=.5; g.add(seat);
-  const back=new THREE.Mesh(new THREE.BoxGeometry(.54,.58,.07),mat);
-  back.position.set(0,.86,-.24); g.add(back);
-  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.46,8),M.chairD);
-  pole.position.y=.25; g.add(pole);
-  for(let i=0;i<5;i++){
-    const a=i/5*Math.PI*2;
-    const arm=new THREE.Mesh(new THREE.BoxGeometry(.035,.05,.24),M.chairD);
-    arm.position.set(Math.cos(a)*.2,.04,Math.sin(a)*.2); arm.rotation.y=a; g.add(arm);
-  }
+  g.castShadow=true; scene.add(g); return g;
+}
+
+// ═══ AGENT CHARACTER BUILDER ═══
+const agentGroups=[];
+function makeAgent(agent,pos,ry=0){
+  const g=new THREE.Group();
+  const shirtM=new THREE.MeshStandardMaterial({color:agent.color,roughness:.8});
+  const skinM =new THREE.MeshStandardMaterial({color:agent.skin,roughness:.7});
+  const hairM =new THREE.MeshStandardMaterial({color:agent.hair,roughness:1.0});
+
+  // Torso
+  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.16,.20,.4,14),shirtM);
+  torso.position.set(0,.88,0); torso.castShadow=true; g.add(torso);
+
+  // Neck
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.07,.08,.1,10),skinM);
+  neck.position.set(0,1.12,0); g.add(neck);
+
+  // Head
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.205,18,14),skinM);
+  head.position.set(0,1.32,0); head.rotation.x=-.12; head.castShadow=true; g.add(head);
+
+  // Hair (dome on top-back of head)
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.22,14,10),hairM);
+  hair.scale.set(1,.56,1.05); hair.position.set(0,1.42,-0.03); g.add(hair);
+
+  // Ears
+  [-1,1].forEach(s=>{
+    const ear=new THREE.Mesh(new THREE.SphereGeometry(.065,8,6),skinM);
+    ear.position.set(s*.22,1.31,0); ear.scale.set(.5,1,1); g.add(ear);
+  });
+
+  // Arms reaching to keyboard
+  const armM=shirtM;
+  const armGeo=new THREE.CylinderGeometry(.055,.065,.38,8);
+  const lA=new THREE.Mesh(armGeo,armM);
+  lA.position.set(-.22,.88,-.16); lA.rotation.set(Math.PI/2.6,0,.15); lA.castShadow=true; g.add(lA);
+  const rA=new THREE.Mesh(armGeo,armM);
+  rA.position.set(.22,.88,-.16); rA.rotation.set(Math.PI/2.6,0,-.15); rA.castShadow=true; g.add(rA);
+
+  // Hands
+  [-0.37,0.37].forEach(x=>{
+    const h=new THREE.Mesh(new THREE.SphereGeometry(.075,8,6),skinM);
+    h.scale.set(.9,1,1.3); h.position.set(x,.88,-.42); g.add(h);
+  });
+
+  g.position.set(...pos); g.rotation.y=ry;
+  scene.add(g); agentGroups.push(g);
   return g;
 }
-makeChair(1,0,-6.2,new THREE.MeshStandardMaterial({color:0x223355,roughness:.6}));
 
-// ═══════════ DESK ISLANDS ═══════════
-// Island layout: two long shared desks
-// Island A: center z=-4, agents on both sides
-// Island B: center z=0.5, agents on both sides
-function makeIsland(cx,cz,w=7){
-  box(w,.09,1.05,M.desk,cx,.73,cz);
-  // Legs
-  for(const sx of[-.45*w+.3,.45*w-.3]){
-    for(const sz of[-.42,.42]){
-      box(.07,.72,.07,M.leg,cx+sx,.36,cz+sz);
-    }
-  }
-  // Center divider
-  box(w,.4,.04,M.desk,cx,.95,cz);
-}
-makeIsland(0,-3.8);
-makeIsland(0, .6);
-
-// ═══════════ AGENT POSITIONS ═══════════
-// Island A (z=-3.8): south side (z=-3.0), north side (z=-4.6)
-// Island B (z=0.6):  south side (z=1.4),  north side (z=-0.2)
-const APOS=[
-  {x:-2.5,z:-3.0,ry:0,      islandZ:-3.8},
-  {x:0,   z:-3.0,ry:0,      islandZ:-3.8},
-  {x:2.5, z:-3.0,ry:0,      islandZ:-3.8},
-  {x:-2.5,z:-4.6,ry:Math.PI,islandZ:-3.8},
-  {x:0,   z:-4.6,ry:Math.PI,islandZ:-3.8},
-  {x:2.5, z:-4.6,ry:Math.PI,islandZ:-3.8},
-  {x:-1.5,z:1.4, ry:0,      islandZ:.6},
-  {x:1.5, z:1.4, ry:0,      islandZ:.6},
-  {x:-1.5,z:-0.2,ry:Math.PI,islandZ:.6},
-  {x:1.5, z:-0.2,ry:Math.PI,islandZ:.6},
-];
-
-// ═══════════ HUMAN BUILDER ═══════════
-function makeHuman(skin,hair,shirt){
+// ═══ DESK ISLAND BUILDER ═══
+function makeDeskIsland(cx,cz,ry=0,seats=[[-.75,1.1,-.52,Math.PI],[.75,1.1,-.52,Math.PI],[-.75,1.1,.52,0],[.75,1.1,.52,0]]){
   const g=new THREE.Group();
-  const sM=new THREE.MeshStandardMaterial({color:skin,roughness:.7});
-  const hM=new THREE.MeshStandardMaterial({color:hair,roughness:.8});
-  const shM=new THREE.MeshStandardMaterial({color:shirt,roughness:.65});
-  const pM=new THREE.MeshStandardMaterial({color:0x2a3040,roughness:.8});
+  // Table top (long shared desk)
+  const top=new THREE.Mesh(new THREE.BoxGeometry(2.0,.07,1.12),deskMat);
+  top.position.y=.88; g.add(top);
+  // Surface panel
+  const surf=new THREE.Mesh(new THREE.BoxGeometry(1.92,.04,1.04),
+    new THREE.MeshStandardMaterial({color:0xf8f6f2,roughness:.4}));
+  surf.position.y=.93; g.add(surf);
+  // Legs
+  [-0.88,.88].forEach(x=>[-0.48,.48].forEach(z=>{
+    const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.88,.06),deskLegMat);
+    l.position.set(x,.44,z); g.add(l);
+  }));
+  // Cable tray
+  const tray=new THREE.Mesh(new THREE.BoxGeometry(1.8,.04,.06),
+    new THREE.MeshStandardMaterial({color:0xdddddd,roughness:.8}));
+  tray.position.set(0,.42,0); g.add(tray);
 
-  const torso=new THREE.Mesh(new THREE.BoxGeometry(.3,.38,.2),shM);
-  torso.position.y=.5; torso.castShadow=true; g.add(torso);
-  const head=new THREE.Mesh(new THREE.BoxGeometry(.22,.22,.22),sM);
-  head.position.y=.82; head.castShadow=true; g.add(head);
-  const hairMesh=new THREE.Mesh(new THREE.BoxGeometry(.235,.1,.235),hM);
-  hairMesh.position.y=.89; g.add(hairMesh);
-  [-1,1].forEach(s=>{
-    const arm=new THREE.Mesh(new THREE.BoxGeometry(.09,.26,.09),shM);
-    arm.position.set(s*.21,.48,.02); g.add(arm);
-    const hand=new THREE.Mesh(new THREE.SphereGeometry(.065,6,4),sM);
-    hand.position.set(s*.21,.34,.06); g.add(hand);
-  });
-  // Seated thighs
-  [-1,1].forEach(s=>{
-    const thigh=new THREE.Mesh(new THREE.BoxGeometry(.12,.09,.28),pM);
-    thigh.position.set(s*.08,.31,.12); g.add(thigh);
-  });
-  return {group:g, head};
+  g.position.set(cx,0,cz); g.rotation.y=ry;
+  g.castShadow=true; g.receiveShadow=true; scene.add(g);
+  return g;
 }
 
-// ═══════════ SCREEN CANVAS ═══════════
-const screenCanvases=[];
-function makeScreenCanvas(){
-  const c=document.createElement('canvas'); c.width=128; c.height=88;
-  const ctx=c.getContext('2d'); ctx.clearRect(0,0,128,88);
-  const tex=new THREE.CanvasTexture(c);
-  return {c,ctx,tex,lines:[],offset:0,_li:-1};
-}
-function drawIdleScreen({c,ctx,tex}){
-  ctx.fillStyle='#020209'; ctx.fillRect(0,0,c.width,c.height);
-  ctx.fillStyle='#0c0c22';
-  for(let i=0;i<4;i++) ctx.fillRect(8,10+i*16,18+Math.random()*28,2);
-  tex.needsUpdate=true;
-}
-function drawActiveScreen(s,t){
-  const {c,ctx,tex}=s;
-  s.offset=(s.offset+.55)%c.height;
-  ctx.fillStyle='#01060b'; ctx.fillRect(0,0,c.width,c.height);
-  const LH=11, N=Math.ceil(c.height/LH)+2;
-  const cols=['#00ff88','#00cc66','#00ffcc','#66ff88','#33ff99'];
-  for(let i=0;i<N;i++){
-    const y=((i*LH-s.offset%c.height+c.height)%c.height);
-    if(!s.lines[i]) s.lines[i]={w:20+Math.random()*78,col:cols[Math.floor(Math.random()*cols.length)],ind:Math.floor(Math.random()*3)*8};
-    if(Math.random()<.012) s.lines[i]={w:20+Math.random()*78,col:cols[Math.floor(Math.random()*cols.length)],ind:Math.floor(Math.random()*3)*8};
-    const l=s.lines[i];
-    ctx.globalAlpha=.65+Math.sin(t*2+i)*.3;
-    ctx.fillStyle=l.col; ctx.fillRect(4+l.ind,y,l.w,2);
+// Monitor + keyboard on desk
+function addMonitor(x,y,z,ry=0,glowing=true){
+  const g=new THREE.Group();
+  // Base
+  box(.6,.04,.35,monitorMat,0,0,0);
+  // Stand
+  const stg=new THREE.Group();
+  const st=new THREE.Mesh(new THREE.BoxGeometry(.08,.28,.05),monitorMat);
+  st.position.y=.16; stg.add(st);
+  // Screen bezel
+  const bz=new THREE.Mesh(new THREE.BoxGeometry(.78,.52,.045),monitorMat);
+  bz.position.y=.55; stg.add(bz);
+  // Screen content (glowing)
+  if(glowing){
+    const sc=new THREE.Mesh(new THREE.BoxGeometry(.7,.44,.025),
+      new THREE.MeshStandardMaterial({color:0x88bbff,emissive:new THREE.Color(0x4488cc),emissiveIntensity:.9,roughness:.1}));
+    sc.position.y=.55; sc.position.z=.02; stg.add(sc);
   }
-  ctx.globalAlpha=Math.floor(t*2)%2?1:0;
-  ctx.fillStyle='#fff'; ctx.fillRect(6,4,2,9);
-  ctx.globalAlpha=1; tex.needsUpdate=true;
+  // Keyboard
+  const kb=new THREE.Mesh(new THREE.BoxGeometry(.55,.025,.2),
+    new THREE.MeshStandardMaterial({color:0xeeeeee,roughness:.6}));
+  kb.position.set(0,.03,.22); stg.add(kb);
+  g.add(stg);
+  const m=new THREE.Group(); m.add(g);
+  m.position.set(x,y,z); m.rotation.y=ry; scene.add(m);
+  return m;
 }
 
-// ═══════════ PLACE AGENTS ═══════════
-const workerMeshes=[];
-APOS.forEach((pos,i)=>{
-  const a=agents[i];
-
-  // Chair
-  makeChair(pos.x, pos.z, pos.ry);
-
-  // Monitor (facing person)
-  const sc=makeScreenCanvas(); drawIdleScreen(sc); screenCanvases[i]=sc;
-  const mMat=new THREE.MeshStandardMaterial({
-    map:sc.tex, emissiveMap:sc.tex,
-    emissive:new THREE.Color(.02,.02,.06), emissiveIntensity:.15,
-    roughness:.3, color:new THREE.Color(0,0,0)
-  });
-  sc.mat=mMat;
-  const monMesh=new THREE.Mesh(new THREE.BoxGeometry(.52,.36,.04),mMat);
-  const mz=pos.islandZ+(pos.ry===0?-.28:.28);
-  monMesh.position.set(pos.x,1.06,mz);
-  monMesh.rotation.x=pos.ry===0?-Math.PI/11:Math.PI/11;
-  monMesh.rotation.y=pos.ry; scene.add(monMesh);
-
-  // Monitor stand
-  const stMat=new THREE.MeshStandardMaterial({color:0xbbbbbb,metalness:.5});
-  const stk=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.18,6),stMat);
-  stk.position.set(pos.x,.88,mz+(pos.ry===0?.04:-.04)); scene.add(stk);
-
-  // Human
-  const {group:hg,head:hh}=makeHuman(a.skin,a.hair,a.shirt);
-  hg.position.set(pos.x,0,pos.z); hg.rotation.y=pos.ry; scene.add(hg);
-
-  a.humanGroup=hg; a.humanHead=hh;
-  a.deskPos={x:pos.x,z:pos.z}; a.targetPos={x:pos.x,z:pos.z};
-  workerMeshes.push({group:hg,head:hh,agent:a,sc});
-});
-
-// Director human (gray-haired, dark suit)
-const {group:dirG,head:dirH}=makeHuman('#f5e0d0','#d8d8d8','#1a2a50');
-dirG.position.set(1,0.18,-6.2); scene.add(dirG);
-
-// ═══════════ REST ZONE ═══════════
-const RX=-7.5, RZ=5.8;
-// Rug
-box(5.5,.025,4.5,new THREE.MeshStandardMaterial({color:0xd4c4a0,roughness:1}),RX,.01,RZ);
-// Sofa body
-box(3.8,.4,1.25,M.sofa,RX,.2,RZ);
-box(3.8,.7,.22,M.sofa,RX,.55,RZ+.55);
-// Cushions
-[[-1.3,0],[0,0],[1.3,0]].forEach(([dx])=>{
-  box(1.1,.24,1.1,M.sofaP,RX+dx,.46,RZ-.04);
-});
-// Pillows
-box(.38,.3,.1,new THREE.MeshStandardMaterial({color:0xaabbcc,roughness:.9}),RX+1.3,.64,RZ+.44);
-box(.38,.3,.1,new THREE.MeshStandardMaterial({color:0xccaa88,roughness:.9}),RX-1.3,.64,RZ+.44);
-// Coffee table
-box(2,.09,1.0,M.wood,RX,.42,RZ-1.2);
-[[-0.85,0,.42],[0.85,0,.42],[-0.85,0,-.42],[0.85,0,-.42]].forEach(([dx,_,dz])=>{
-  box(.05,.4,.05,M.leg,RX+dx,.21,RZ-1.2+dz);
-});
-// Coffee mug on table
-cyl(.05,.045,.08,8,new THREE.MeshStandardMaterial({color:0xdddddd}),RX+.3,.48,RZ-1.22);
-// Floor lamp
-cyl(.035,.035,1.1,8,M.lamp,RX-2.3,.55,RZ+.2);
-cyl(.035,.035,.55,8,M.lamp,RX-2.2,1.15,RZ-.1,0,0,.35);
-sph(.2,M.bulb,RX-2.0,1.35,RZ-.02);
-const lampL=new THREE.PointLight(0xffddaa,.9,5.5); lampL.position.set(RX-2,1.35,RZ); scene.add(lampL);
-
-// ═══════════ COFFEE CORNER ═══════════
-const CX=9, CZ=6.5;
-box(2.4,.9,1.4,M.desk,CX,.45,CZ);
-box(.45,.62,.32,new THREE.MeshStandardMaterial({color:0x1a1a1a}),CX-.6,1.11,CZ-.5); // machine
-box(.3,.28,.28,new THREE.MeshStandardMaterial({color:0x8B4513}),CX+.3,1.09,CZ-.5); // beans
-[-.4,0,.4].forEach(dx=>{ cyl(.055,.048,.085,8,new THREE.MeshStandardMaterial({color:0xffffff}),CX+dx,1,CZ+.35); });
-
-// ═══════════ SPEECH BUBBLES ═══════════
-const CHATS=['☕ Coffee!','💡 Idea!','🚀 Ship it!','🤖 AI is great','😄 Good work!','💬 Stand-up?','🔥 Finished!','🌿 Nice office'];
-function makeBubble(){
-  const c=document.createElement('canvas'); c.width=180; c.height=46;
-  const ctx=c.getContext('2d'); ctx.clearRect(0,0,180,46);
-  const tex=new THREE.CanvasTexture(c);
-  const mat=new THREE.SpriteMaterial({map:tex,transparent:true,opacity:0,depthTest:false});
-  const spr=new THREE.Sprite(mat); spr.scale.set(1.1,.28,1); spr.visible=false; spr.renderOrder=1;
-  scene.add(spr); return {spr,c,ctx,tex};
-}
-function drawBubble(b,txt){
-  const {c,ctx,tex}=b;
-  ctx.clearRect(0,0,c.width,c.height);
-  ctx.fillStyle='rgba(255,255,255,.96)'; ctx.beginPath(); ctx.rect(2,2,c.width-4,34,7); ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.08)'; ctx.lineWidth=1; ctx.beginPath(); ctx.rect(2,2,c.width-4,34,7); ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,.96)';
-  ctx.beginPath(); ctx.moveTo(80,36); ctx.lineTo(90,46); ctx.lineTo(100,36); ctx.closePath(); ctx.fill();
-  ctx.fillStyle='#333'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(txt,c.width/2,19); tex.needsUpdate=true;
-}
-agents.forEach(a=>{ a.bubble=makeBubble(); });
-
-// ═══════════ REST SPOTS ═══════════
-const restSpots=[
-  {x:RX-1.3,z:RZ-.02,rot:.1},{x:RX,z:RZ-.02,rot:0},{x:RX+1.3,z:RZ-.02,rot:-.1},
-  {x:RX-2.0,z:RZ-1.1,rot:.6},{x:RX+.6,z:RZ-1.1,rot:-.3},
+// ═══ POPULATE DESKS ═══
+// 4 islands in 2x2 grid
+const islandPositions=[
+  {cx:-1.5,cz:-3.5},{cx:2.5,cz:-3.5},
+  {cx:-1.5,cz:1.5}, {cx:2.5,cz:1.5}
 ];
 
-function sendToRest(a){
-  if(a.state==='resting'||a.state==='walking_to_rest') return;
-  const taken=agents.filter(x=>x.restSpotIdx>=0).map(x=>x.restSpotIdx);
-  const free=restSpots.findIndex((_,i)=>!taken.includes(i)); if(free<0) return;
-  a.restSpotIdx=free; a.targetPos={x:restSpots[free].x,z:restSpots[free].z}; a.state='walking_to_rest';
-}
-function sendToDesk(a){
-  if(a.state==='desk'||a.state==='walking_to_desk') return;
-  a.state='walking_to_desk'; a.targetPos={x:a.deskPos.x,z:a.deskPos.z}; a.restSpotIdx=-1;
-  if(a.bubble){ a.bubble.spr.visible=false; a.bubble.spr.material.opacity=0; }
+// Agent seat offsets per island [local x, local z, face dir (chair ry)]
+const seatDefs=[
+  {lx:-.72,lz:-.38,ry:0},  // back-left, facing -z (toward back)
+  {lx: .72,lz:-.38,ry:0},  // back-right
+  {lx:-.72,lz: .38,ry:Math.PI}, // front-left, facing +z (toward front)
+  {lx: .72,lz: .38,ry:Math.PI}, // front-right
+];
+
+// Colors for 10 agents distributed across islands
+let agIdx=0;
+islandPositions.forEach(({cx,cz},ii)=>{
+  makeDeskIsland(cx,cz);
+  const numSeats = ii<2 ? 3 : (agIdx+3<=9 ? 3 : 10-agIdx);
+  seatDefs.slice(0,Math.min(3, 10-agIdx)).forEach((s,si)=>{
+    if(agIdx>=10) return;
+    const ag=agents[agIdx++];
+    const wx=cx+ Math.cos(0)*s.lx - Math.sin(0)*s.lz;
+    const wz=cz+ Math.sin(0)*s.lx + Math.cos(0)*s.lz;
+    makeChair(wx, wz+.22*(s.ry===0?1:-1), s.ry+Math.PI);
+    makeAgent(ag,[wx,0,wz],s.ry+Math.PI);
+    addMonitor(wx,0.91,cz+(s.lz>0?-.05:.05),s.ry,ag.status==='active');
+  });
+});
+
+// Director chair + agent
+makeChair(-.5,0,-7.35,Math.PI);
+makeAgent({color:0x2a3a6a,hair:0xcccccc,skin:0xffd0a0},[-0.5,0,-7.2],Math.PI);
+
+// ═══ SOFA AREA (bottom-left) ═══
+// Rug
+box(5.5,.03,4.5,rugMat,-5.5,.015,6.5,0,0,0,false,true);
+// Sofa
+const sofaGroup=new THREE.Group();
+// Base/seat
+const sb=new THREE.Mesh(new THREE.BoxGeometry(3.2,.45,.95),sofaMat); sb.position.set(0,.55,.0); sofaGroup.add(sb);
+// Back cushion
+const sbk=new THREE.Mesh(new THREE.BoxGeometry(3.2,.65,.28),sofaMat); sbk.position.set(0,.9,.45); sofaGroup.add(sbk);
+// Armrests
+[-1.65,1.65].forEach(x=>{
+  const ar=new THREE.Mesh(new THREE.BoxGeometry(.22,.62,.95),sofaMat);
+  ar.position.set(x,.62,.0); sofaGroup.add(ar);
+});
+// Legs
+[-1.4,1.4].forEach(x=>[-0.38,.38].forEach(z=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.28,8),
+    new THREE.MeshStandardMaterial({color:0x8b6340,roughness:.6}));
+  l.position.set(x,.14,z); sofaGroup.add(l);
+}));
+// Pillows
+[-.9,0,.9].forEach(x=>{
+  const p=new THREE.Mesh(new THREE.BoxGeometry(.58,.38,.28),pillowMat);
+  p.position.set(x,.82,.38); sofaGroup.add(p);
+});
+sofaGroup.position.set(-5.5,.0,7.4); sofaGroup.castShadow=true; scene.add(sofaGroup);
+
+// Coffee table
+const ct=new THREE.Group();
+const ctop=new THREE.Mesh(new THREE.BoxGeometry(1.4,.06,.8),tableMat);
+ctop.position.y=.38; ct.add(ctop);
+[-0.58,.58].forEach(x=>[-0.32,.32].forEach(z=>{
+  const l=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.38,8),
+    new THREE.MeshStandardMaterial({color:0x7a5020,roughness:.7}));
+  l.position.set(x,.19,z); ct.add(l);
+}));
+// Mug
+const mug=new THREE.Mesh(new THREE.CylinderGeometry(.08,.07,.12,10),
+  new THREE.MeshStandardMaterial({color:0xffffff,roughness:.7}));
+mug.position.set(.2,.46,.1); ct.add(mug);
+// Book
+box(.2,.04,.3,new THREE.MeshStandardMaterial({color:0x4477bb,roughness:.9}),-.25,.41,-.05);
+ct.position.set(-4.8,0,6.1); ct.castShadow=true; scene.add(ct);
+
+// Floor lamp
+const flamp=new THREE.Group();
+const lbase=new THREE.Mesh(new THREE.CylinderGeometry(.18,.22,.06,12),lampMat); flamp.add(lbase);
+const lpole=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,1.45,8),lampMat);
+lpole.position.y=.75; flamp.add(lpole);
+const lshd=new THREE.Mesh(new THREE.CylinderGeometry(.28,.12,.32,16,1,true),lampShade);
+lshd.rotation.x=Math.PI; lshd.position.y=1.6; flamp.add(lshd);
+const lbulb=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),lampShade);
+lbulb.position.y=1.45; flamp.add(lbulb);
+flamp.position.set(-7.2,0,5.5); flamp.castShadow=true; scene.add(flamp);
+const flampPt=new THREE.PointLight(0xffd080,.7,5); flampPt.position.set(-7.2,1.6,5.5); scene.add(flampPt);
+
+// Sideboard/shelf
+box(1.4,.5,0.5,new THREE.MeshStandardMaterial({color:0xd4a96a,roughness:.7}),7.5,.6,3);
+// Coffee machine on shelf
+cyl(.12,.1,.28,10,new THREE.MeshStandardMaterial({color:0x333333,roughness:.5}),7.5,.94,3);
+sph(.1,8,new THREE.MeshStandardMaterial({color:0x111111,roughness:.3}),7.5,1.1,3);
+
+// ═══ BIG SCREEN DRAW ═══
+function drawBigScreen(t){
+  const ctx=bigCtx;
+  // Background gradient (dark blue dashboard)
+  const gr=ctx.createLinearGradient(0,0,0,SC_H);
+  gr.addColorStop(0,'#0d1e52'); gr.addColorStop(1,'#0a1638');
+  ctx.fillStyle=gr; ctx.fillRect(0,0,SC_W,SC_H);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.lineWidth=.8;
+  for(let x=0;x<=SC_W;x+=SC_W/10){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,SC_H);ctx.stroke();}
+  for(let y=0;y<=SC_H;y+=SC_H/6){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(SC_W,y);ctx.stroke();}
+
+  // Left panel - agent cards (5x2)
+  const startX=10, startY=18, cw=110, ch=72;
+  ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(0,0,SC_W/2-5,SC_H);
+  ctx.fillStyle='#aaccff'; ctx.font='bold 11px monospace';
+  ctx.fillText('AGENT STATUS', startX, 14);
+
+  agents.forEach((a,i)=>{
+    const col=i%2, row=Math.floor(i/2);
+    const x=startX+col*cw, y=startY+row*ch+5;
+    const active=a.status==='active';
+    // Card bg
+    ctx.fillStyle=active?'rgba(30,80,40,.9)':'rgba(20,30,60,.8)';
+    ctx.beginPath(); ctx.rect(x,y,cw-8,ch-8); ctx.fill();
+    ctx.strokeStyle=active?'#00ee66':'#334488';
+    ctx.lineWidth=1.2; ctx.beginPath(); ctx.rect(x,y,cw-8,ch-8); ctx.stroke();
+    // Dot
+    ctx.fillStyle=active?'#00ff66':'#4466aa';
+    ctx.beginPath(); ctx.arc(x+10,y+12,4.5,0,Math.PI*2); ctx.fill();
+    if(active){
+      ctx.strokeStyle='rgba(0,255,100,.25)'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.arc(x+10,y+12,8,0,Math.PI*2); ctx.stroke();
+    }
+    // Name
+    ctx.fillStyle='#ffffff'; ctx.font='bold 10px monospace';
+    ctx.fillText(a.name, x+20, y+15);
+    // Task
+    const tk=a.task.replace(/[\u0080-\uffff]/g,'').slice(0,13);
+    ctx.fillStyle=active?'#88ffcc':'#7799bb'; ctx.font='8px monospace';
+    ctx.fillText(tk||'Idle', x+8, y+30);
+    // Bar
+    ctx.fillStyle='rgba(255,255,255,.1)'; ctx.fillRect(x+8,y+ch-22,cw-24,6);
+    if(active){
+      const p=.3+(Math.sin(t*1.5+i*.85)+1)/2*.7;
+      const bg=ctx.createLinearGradient(x+8,0,x+8+cw-24,0);
+      bg.addColorStop(0,'#00ff88'); bg.addColorStop(1,'#00ccff');
+      ctx.fillStyle=bg; ctx.fillRect(x+8,y+ch-22,(cw-24)*p,6);
+    }
+  });
+
+  // Right panel - charts
+  const rX=SC_W/2+8;
+  ctx.fillStyle='#aaccff'; ctx.font='bold 11px monospace';
+  ctx.fillText('SYSTEM METRICS', rX, 14);
+
+  // Bar chart
+  const activeCount=agents.filter(a=>a.status==='active').length;
+  const barColors=['#00ff88','#00ccff','#ffaa22','#ff5566','#aa88ff'];
+  ['Active','Tasks','API','Memory','Load'].forEach((label,i)=>{
+    const bx=rX, by=28+i*44;
+    const val=i===0?(activeCount/10):(.3+Math.sin(t*.8+i*1.3)*.25+.25);
+    ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fillRect(bx,by+14,SC_W/2-20,10);
+    ctx.fillStyle=barColors[i]; ctx.fillRect(bx,by+14,(SC_W/2-20)*val,10);
+    ctx.fillStyle='#ccdeff'; ctx.font='9px monospace';
+    ctx.fillText(label,bx,by+12);
+    ctx.fillStyle='#ffffff'; ctx.font='bold 9px monospace';
+    ctx.fillText(i===0?activeCount+'/'+(agents.length):Math.round(val*100)+'%',rX+SC_W/2-32,by+12);
+  });
+
+  // Wave at bottom
+  const wY=SC_H-50;
+  ctx.fillStyle='rgba(0,20,60,.5)'; ctx.fillRect(SC_W/2+8,wY,SC_W/2-8,50);
+  ctx.fillStyle='#6699cc'; ctx.font='8px monospace'; ctx.fillText('NETWORK ACTIVITY',rX,wY+12);
+  // Wave
+  ctx.beginPath(); ctx.moveTo(rX, wY+36);
+  for(let x=0;x<=SC_W/2-12;x+=2){
+    const y2=wY+32-Math.sin(x/20+t)*8-Math.sin(x/8+t*1.4)*4;
+    ctx.lineTo(rX+x,y2);
+  }
+  ctx.lineTo(SC_W-4,wY+50); ctx.lineTo(rX,wY+50); ctx.closePath();
+  ctx.fillStyle='rgba(40,120,220,.3)'; ctx.fill();
+  ctx.strokeStyle='#55aaff'; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(rX, wY+32-Math.sin(t)*8);
+  for(let x=0;x<=SC_W/2-12;x+=2) ctx.lineTo(rX+x,wY+32-Math.sin(x/20+t)*8-Math.sin(x/8+t*1.4)*4);
+  ctx.stroke();
+
+  bigTex.needsUpdate=true;
 }
 
-// Schedulers
+// ═══ PANEL BUILDER ═══
+function rebuildPanel(){
+  const g=document.getElementById('pgrid');
+  if(!g) return;
+  g.innerHTML=agents.map((a,i)=>{
+    const active=a.status==='active';
+    const dotC=active?'#44cc66':'#aaa';
+    const barC=active?'linear-gradient(90deg,#44cc66,#22aaee)':'#ddd';
+    const barW=active?Math.round(35+Math.random()*55)+'%':'8%';
+    return `<div class="pcard${active?' active':''}" data-i="${i}">
+      <div class="ptop"><div class="pdot" style="background:${dotC}"></div><div class="pname">${a.name}</div></div>
+      <div class="ptask">${a.task.slice(0,14)}</div>
+      <div class="pbar-bg"><div class="pbar" style="width:${barW};background:${barC}"></div></div>
+    </div>`;
+  }).join('');
+}
+rebuildPanel();
 setInterval(()=>{
-  agents.forEach(a=>{
-    if(a.status==='idle'&&a.state==='desk'&&Math.random()>.55) sendToRest(a);
-    if(a.status==='active'&&(a.state==='resting'||a.state==='walking_to_rest')) sendToDesk(a);
+  document.querySelectorAll('.pcard.active .pbar').forEach(b=>{
+    b.style.width=Math.round(30+Math.random()*60)+'%';
   });
-},9000);
-setInterval(()=>{
-  agents.filter(a=>a.state==='resting').forEach(a=>{
-    if(!a.bubble||Math.random()>.4) return;
-    drawBubble(a.bubble,CHATS[Math.floor(Math.random()*CHATS.length)]);
-    a.bubble.spr.visible=true; a.bubble.spr.material.opacity=1;
-    setTimeout(()=>{ if(a.bubble){a.bubble.spr.visible=false;a.bubble.spr.material.opacity=0;} },3200+Math.random()*2000);
-  });
-},5500);
-setInterval(()=>{
-  const TASKS=['💻 Writing code','📊 Analyzing','📄 Generating report','🔍 Web search','📝 Editing','🛠️ Testing','🌐 API call'];
-  agents.slice(3).forEach(a=>{
-    if(a.state!=='desk'&&a.state!=='resting') return;
-    const on=Math.random()>.5;
-    if(on&&a.status!=='active'){ setAgent(a.id,'active',TASKS[Math.floor(Math.random()*TASKS.length)]); sendToDesk(a); }
-    else if(!on&&a.status==='active') setAgent(a.id,'idle','Свободен');
-  });
-},22000);
+},2000);
 
-// ═══════════ ANIMATION ═══════════
+// ═══ CLOCK ═══
+function updateClock(){
+  const el=document.getElementById('hud-time');
+  if(el) el.textContent=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+}
+updateClock(); setInterval(updateClock,30000);
+
+// ═══ ANIMATION LOOP ═══
 const clock=new THREE.Clock();
+let t=0;
+
+// Init big screen
+drawBigScreen(0);
+
 function animate(){
   requestAnimationFrame(animate);
-  const t=clock.getElapsedTime();
-  clock.getDelta(); // consume delta
+  t=clock.getElapsedTime();
 
-  // Camera gentle sway
-  camera.position.x=11+Math.sin(t*.04)*.25;
-  camera.lookAt(-1,0,-3);
-
-  // Big screen live
-  drawBigScreen(t);
-
-  // Workers
-  workerMeshes.forEach(({group,head,agent,sc})=>{
-    const ph=agent.phase;
-    const walking=agent.state==='walking_to_rest'||agent.state==='walking_to_desk';
-    if(walking){
-      const dx=agent.targetPos.x-group.position.x;
-      const dz=agent.targetPos.z-group.position.z;
-      const dist=Math.sqrt(dx*dx+dz*dz);
-      if(dist<.1){
-        group.position.x=agent.targetPos.x; group.position.z=agent.targetPos.z; group.position.y=0;
-        const wasWalkingToRest=agent.state==='walking_to_rest';
-        agent.state=wasWalkingToRest?'resting':'desk';
-        if(agent.state==='resting'){ const sp=restSpots[agent.restSpotIdx]; group.rotation.y=sp?.rot||0; }
-      } else {
-        group.position.x+=dx/dist*agent.walkSpeed*.016;
-        group.position.z+=dz/dist*agent.walkSpeed*.016;
-        group.rotation.y=Math.atan2(dx,dz); group.position.y=0;
-      }
-    } else {
-      group.position.y=Math.sin(t*.5+ph)*.004;
-      head.rotation.y=Math.sin(t*.35+ph)*.05;
-    }
-
-    // Bubble follow
-    if(agent.bubble) agent.bubble.spr.position.set(group.position.x,2.1,group.position.z);
-
-    // Screen update
-    if(sc){
-      if(agent.status==='active'&&agent.state!=='resting'){
-        drawActiveScreen(sc,t);
-        sc.mat.emissive.set(.04,.45,.18); sc.mat.emissiveIntensity=.55+Math.sin(t*3+ph)*.08;
-      } else {
-        if(Math.floor(t*.6+ph)!==sc._li){ drawIdleScreen(sc); sc._li=Math.floor(t*.6+ph); }
-        sc.mat.emissive.set(.02,.02,.05); sc.mat.emissiveIntensity=.12;
-      }
-    }
+  // Gentle breathing for agents
+  agentGroups.forEach((g,i)=>{
+    g.position.y=Math.sin(t*.45+i*.7)*.012;
   });
 
-  // Director
-  dirG.position.y=.18+Math.sin(t*.55)*.004;
-  dirH.rotation.y=Math.sin(t*.3)*.07;
+  // Slow camera drift (very subtle)
+  camera.position.x=6+Math.sin(t*.06)*.25;
+  camera.position.z=17+Math.sin(t*.04)*.2;
+  camera.lookAt(0,1,-1);
+
+  // Screen update
+  drawBigScreen(t);
 
   renderer.render(scene,camera);
 }
 animate();
-} catch(e) { document.body.style.background='#fee'; document.body.innerHTML='<pre style="color:red;padding:20px">CAUGHT:\n'+e.message+'\n'+e.stack+'</pre>'; }
 </script>
 </body>
 </html>
