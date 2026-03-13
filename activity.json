@@ -1,5 +1,15 @@
 [
   {
+    "ts": "13:50",
+    "agent": "KRAKEN",
+    "msg": "✅ Bought OOBUSD $0.01061"
+  },
+  {
+    "ts": "13:49",
+    "agent": "KRAKEN",
+    "msg": "🔍 25 signals: AI3USD BUY, ALICEUSD SELL, ALKIMIUSD SELL, ALTHEAUSD SELL, ANONUSD SELL +20 more"
+  },
+  {
     "ts": "13:45",
     "agent": "KRAKEN",
     "msg": "✅ Bought OOBUSD $0.01061"
@@ -138,15 +148,5 @@
     "ts": "13:09",
     "agent": "KRAKEN",
     "msg": "⚠️ Order failed: TLMUSD — Kraken: EGeneral:Invalid arguments:volume minimum not met"
-  },
-  {
-    "ts": "13:09",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: LIONUSD — Kraken: EAccount:Invalid permissions:LION trading restricted for US:CA."
-  },
-  {
-    "ts": "13:09",
-    "agent": "KRAKEN",
-    "msg": "⚠️ Order failed: AVAAIUSD — Kraken: EAccount:Invalid permissions:AVAAI trading restricted for US:CA."
   }
 ]
