@@ -247,13 +247,7 @@ box(6,0.12,0.12,glassMat,5,2.8,-5,0,0,0,false); // glass partition top
 // Director office glass wall
 box(6,3,0.12,glassMat,5,1.5,-8.1,0,0,0,false);
 
-// Ceiling neon dots (subtle)
-const neonMat = new THREE.MeshStandardMaterial({color:0x00ff88,emissive:0x00ff88,emissiveIntensity:0.5});
-[-3,0,3].forEach(x=>{
-  const strip = new THREE.Mesh(new THREE.BoxGeometry(0.05,0.05,4),neonMat);
-  strip.position.set(x,3.9,-2);
-  scene.add(strip);
-});
+// No ceiling strips — using point lights only
 
 // Director accent light only (no neon strip)
 
@@ -264,6 +258,68 @@ const deskPositions = [
 ];
 const deskZ = [-3.5, 0.5];
 const workerDeskXs = [-7,-4.5,-2,0.5,3];
+
+// Screen canvas pool
+const screenCanvases = [];
+
+function makeScreenCanvas(){
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 88;
+  const ctx = c.getContext('2d');
+  const tex = new THREE.CanvasTexture(c);
+  return {c, ctx, tex, lines:[], cursor:0, offset:0};
+}
+
+function drawIdleScreen(s){
+  const {c,ctx,tex}=s;
+  ctx.fillStyle='#020208';
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle='#0a0a22';
+  for(let i=0;i<5;i++){
+    const w=20+Math.random()*35;
+    ctx.fillRect(6,8+i*14,w,2);
+  }
+  // dim screensaver dot
+  ctx.fillStyle='#111a33';
+  ctx.beginPath(); ctx.arc(64,44,8,0,Math.PI*2); ctx.fill();
+  tex.needsUpdate=true;
+}
+
+function drawActiveScreen(s, t, color='#00ff88'){
+  const {c,ctx,tex}=s;
+  // Scroll offset
+  s.offset=(s.offset+0.4)%(c.height);
+  ctx.fillStyle='#01060a';
+  ctx.fillRect(0,0,c.width,c.height);
+
+  const LINE_H=11;
+  const N=Math.ceil(c.height/LINE_H)+2;
+  const colors=['#00ff88','#00cc66','#00ffcc','#88ff88','#44ff66'];
+
+  for(let i=0;i<N;i++){
+    const y=((i*LINE_H - s.offset % c.height + c.height) % c.height);
+    if(!s.lines[i]) s.lines[i]={w:Math.random()*80+20, col:colors[Math.floor(Math.random()*colors.length)], indent: Math.floor(Math.random()*3)*8};
+    // occasionally regenerate
+    if(Math.random()<.01) s.lines[i]={w:Math.random()*80+20, col:colors[Math.floor(Math.random()*colors.length)], indent:Math.floor(Math.random()*3)*8};
+    const l=s.lines[i];
+    ctx.globalAlpha=0.7+Math.sin(t*2+i)*.3;
+    ctx.fillStyle=l.col;
+    ctx.fillRect(4+l.indent, y, l.w, 2);
+    // indent blocks (code structure)
+    if(l.indent>0){
+      ctx.globalAlpha=0.3;
+      ctx.fillStyle='#334';
+      ctx.fillRect(4,y,l.indent-2,2);
+    }
+  }
+  // Cursor blink
+  ctx.globalAlpha=Math.floor(t*2)%2===0?1:0;
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(6,4,2,9);
+
+  ctx.globalAlpha=1;
+  tex.needsUpdate=true;
+}
 
 function makeDesk(x,z,agentIdx){
   const group = new THREE.Group();
@@ -282,16 +338,30 @@ function makeDesk(x,z,agentIdx){
     leg.castShadow=true; group.add(leg);
   });
 
-  // MacBook
+  // MacBook base
   const mb = new THREE.Mesh(new THREE.BoxGeometry(0.7,0.025,0.48),
     new THREE.MeshStandardMaterial({color:0x999999,metalness:.8,roughness:.2}));
   mb.position.set(0,0.79,-.1); group.add(mb);
 
-  // Screen
-  const scr = new THREE.Mesh(new THREE.BoxGeometry(0.66,0.44,0.02),
-    new THREE.MeshStandardMaterial({color:agentIdx<3?0x001a10:0x0a0816, emissive:agentIdx<3?0x003322:0x080814, emissiveIntensity:.5}));
+  // Animated screen canvas
+  const sc = makeScreenCanvas();
+  drawIdleScreen(sc);
+  screenCanvases[agentIdx] = sc;
+
+  const scrMat = new THREE.MeshStandardMaterial({
+    map: sc.tex,
+    emissiveMap: sc.tex,
+    emissive: new THREE.Color(0.02,0.02,0.06),
+    emissiveIntensity: 0.15,
+    roughness: 0.2,
+    color: new THREE.Color(0,0,0)
+  });
+  const scr = new THREE.Mesh(new THREE.BoxGeometry(0.66,0.44,0.02), scrMat);
   scr.position.set(0,1.02,-.33);
-  scr.rotation.x=Math.PI/6; group.add(scr);
+  scr.rotation.x=Math.PI/6;
+  group.add(scr);
+  sc.mesh = scr;
+  sc.mat = scrMat;
 
   // Coffee cup
   const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.05,0.12,8),
@@ -815,6 +885,24 @@ function animate(){
     // ── Bubble follows agent ──
     if(agent.bubble){
       agent.bubble.spr.position.set(group.position.x, 2.4, group.position.z);
+    }
+  });
+
+  // Animate screens
+  screenCanvases.forEach((sc,i)=>{
+    if(!sc) return;
+    const a=agents[i];
+    if(a && a.status==='active' && a.state!=='resting'){
+      drawActiveScreen(sc, t);
+      sc.mat.emissive.set(0.05, 0.5, 0.2);
+      sc.mat.emissiveIntensity=0.6+Math.sin(t*3+i)*.08;
+    } else {
+      if(Math.floor(t*0.7+i)!==sc._lastIdle){
+        drawIdleScreen(sc);
+        sc._lastIdle=Math.floor(t*0.7+i);
+      }
+      sc.mat.emissive.set(0.02, 0.02, 0.06);
+      sc.mat.emissiveIntensity=0.15;
     }
   });
 
