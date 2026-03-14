@@ -1,8 +1,8 @@
 {
-  "updated": "2026-03-14T00:09:01.622Z",
+  "updated": "2026-03-14T00:11:01.628Z",
   "subagent": {
-    "status": "active",
-    "task": "Редизайн Prompt Studio — иконки с glow как в офисе"
+    "status": "idle",
+    "task": ""
   },
   "agents": [
     {
