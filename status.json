@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-14T12:43:02.176Z",
+  "updated": "2026-03-14T12:45:02.191Z",
   "subagent": {
     "status": "idle",
     "task": ""
@@ -7,8 +7,8 @@
   "agents": [
     {
       "name": "Robo-1",
-      "status": "active",
-      "task": "Moltbook check"
+      "status": "idle",
+      "task": "Idle"
     },
     {
       "name": "Robo-2",
