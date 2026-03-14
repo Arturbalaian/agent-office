@@ -58,6 +58,7 @@ body {
   gap: 3px;
   position: relative;
   min-width: 0;
+  min-height: 140px;
   box-shadow: inset 0 0 8px #00000066;
 }
 .wcard canvas { display:block; }
@@ -72,7 +73,7 @@ body {
 
 /* Agent name — shown big */
 .w-name {
-  font-size:8px; color:#ffff88; font-weight:bold; letter-spacing:.5px;
+  font-size:9px; color:#ffff88; font-weight:bold; letter-spacing:.5px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   width:100%; text-align:center; padding:0 1px;
 }
@@ -82,7 +83,7 @@ body {
 }
 
 .w-task {
-  font-size:7px; color:#6699aa;
+  font-size:8px; color:#6699aa;
   text-align:center;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   width:100%; padding:0 2px;
@@ -92,10 +93,10 @@ body {
 
 /* ── AGENT GLOW ICON ── */
 .agent-icon-wrap {
-  width: 46px; height: 46px;
+  width: 64px; height: 64px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 21px;
+  font-size: 28px;
   background: #06061a;
   border: 2px solid #1a2040;
   transition: box-shadow 0.4s, border-color 0.4s;
@@ -224,6 +225,41 @@ body {
 @keyframes tick { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 .ti { margin:0 20px; }
 .ti::before { content:'▶ '; color:#ff6b6b; }
+
+/* ── TAB SWITCHER ── */
+.tab-switcher {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px 0;
+}
+.tab-btn {
+  flex: 1;
+  padding: 6px 10px;
+  background: #0d0d25;
+  border: 1px solid #1a3060;
+  border-radius: 4px;
+  color: #4488aa;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 4px #00000066;
+}
+.tab-btn:hover {
+  border-color: #00d4ff55;
+  color: #00d4ffaa;
+  box-shadow: 0 0 8px #00d4ff33;
+}
+.tab-btn.active {
+  background: #091828;
+  border-color: #00d4ff;
+  color: #00d4ff;
+  box-shadow: 0 0 12px 2px #00d4ff55, inset 0 0 8px #00d4ff22;
+  text-shadow: 0 0 8px #00d4ff;
+}
 </style>
 </head>
 <body>
@@ -238,8 +274,14 @@ body {
 
 <div class="floor">
 
+  <!-- TAB SWITCHER -->
+  <div class="tab-switcher">
+    <button class="tab-btn active" id="tab-agents" onclick="switchTab('agents')">⚡ Agents &amp; Teams</button>
+    <button class="tab-btn" id="tab-builders" onclick="switchTab('builders')">🎬 AI Builders</button>
+  </div>
+
   <!-- WORKER ZONE -->
-  <div class="zone" style="background:#0c0c20;border-color:#1a2050;">
+  <div class="zone" id="zone-agents" style="background:#0c0c20;border-color:#1a2050;">
     <div class="zone-label">⚡ Agents & Teams</div>
     <div class="worker-grid" id="worker-grid">
       <!-- filled by JS -->
@@ -247,7 +289,7 @@ body {
   </div>
 
   <!-- AI BUILDERS ZONE -->
-  <div class="zone" style="background:#0c1a10;border-color:#1a4020;margin-top:8px;">
+  <div class="zone" id="zone-builders" style="background:#0c1a10;border-color:#1a4020;display:none;">
     <div class="zone-label" style="color:#00ffaa;">🎬 AI Builders</div>
     <div class="worker-grid" id="builder-grid" style="grid-template-columns:repeat(4,1fr);gap:4px;">
       <!-- filled by JS -->
@@ -377,8 +419,8 @@ agents.forEach(a => {
   if (a.type === 'team') {
     // Multiple mini-robot canvases side by side
     const isLarge = a.teamColors.length === 2; // 2-robot team gets bigger canvases
-    const cw = isLarge ? 25 : 17;
-    const ch = isLarge ? 32 : 24;
+    const cw = isLarge ? 33 : 22;
+    const ch = isLarge ? 42 : 31;
     const canvasesHtml = a.teamColors.map((_, i) =>
       `<canvas id="cv-${a.id}-${i}" width="${cw}" height="${ch}"></canvas>`
     ).join('');
@@ -394,7 +436,7 @@ agents.forEach(a => {
     card.innerHTML = `
       <div class="status-dot" id="dot-${a.id}"></div>
       <div class="agent-icon-wrap status-idle" id="glow-${a.id}">${getAgentIcon(a.name)}</div>
-      <canvas id="cv-${a.id}" width="44" height="52"></canvas>
+      <canvas id="cv-${a.id}" width="57" height="68"></canvas>
       <div class="w-name">${a.name}</div>
       <div class="w-num">${a.num}</div>
       <div class="w-task" id="task-${a.id}">${a.task}</div>
@@ -418,12 +460,12 @@ const bgrid = document.getElementById('builder-grid');
 builders.forEach(b => {
   const card = document.createElement('div');
   card.className = 'wcard';
-  card.style.cssText = 'border-color:' + b.color + '22;min-height:80px;';
+  card.style.cssText = 'border-color:' + b.color + '22;min-height:140px;';
   card.innerHTML = `
     <div class="status-dot" id="bdot-${b.id}" style="background:#333"></div>
-    <div style="font-size:22px;margin:4px 0;">${b.emoji}</div>
-    <div class="w-name" style="color:${b.color};font-size:7px;">${b.name}</div>
-    <div class="w-task" id="btask-${b.id}" style="font-size:6px;color:#556677;">💤 Idle</div>
+    <div class="agent-icon-wrap status-idle" id="bglow-${b.id}" style="font-size:32px;">${b.emoji}</div>
+    <div class="w-name" style="color:${b.color};font-size:9px;">${b.name}</div>
+    <div class="w-task" id="btask-${b.id}" style="font-size:8px;color:#556677;">💤 Idle</div>
   `;
   bgrid.appendChild(card);
 });
@@ -632,7 +674,9 @@ function updateBuilders(buildersData) {
     if (!bData) return;
     const dot = document.getElementById(`bdot-${b.id}`);
     const taskEl = document.getElementById(`btask-${b.id}`);
+    const glow = document.getElementById(`bglow-${b.id}`);
     const active = bData.status === 'active';
+    const errored = bData.status === 'error';
     if (dot) {
       if (active) {
         dot.style.background = '#00ff88';
@@ -644,7 +688,11 @@ function updateBuilders(buildersData) {
         dot.style.animation = 'none';
       }
     }
-    if (taskEl) taskEl.textContent = active ? '⚙️ ' + (bData.task || 'Working') : '💤 Idle';
+    if (glow) {
+      const glowStatus = errored ? 'status-error' : active ? 'status-active' : 'status-idle';
+      glow.className = 'agent-icon-wrap ' + glowStatus;
+    }
+    if (taskEl) taskEl.textContent = active ? '⚙️ ' + (bData.task || 'Working') : (errored ? '❌ Error' : '💤 Idle');
   });
 }
 
@@ -758,6 +806,27 @@ function renderActivity(entries) {
 }
 
 // Activity is now loaded as part of pollStatus() every 2 seconds
+
+// ── TAB SWITCHER ──
+function switchTab(tab) {
+  const zoneAgents = document.getElementById('zone-agents');
+  const zoneBuilders = document.getElementById('zone-builders');
+  const tabAgents = document.getElementById('tab-agents');
+  const tabBuilders = document.getElementById('tab-builders');
+
+  if (tab === 'agents') {
+    zoneAgents.style.display = '';
+    zoneBuilders.style.display = 'none';
+    tabAgents.classList.add('active');
+    tabBuilders.classList.remove('active');
+  } else {
+    zoneAgents.style.display = 'none';
+    zoneBuilders.style.display = '';
+    tabBuilders.classList.add('active');
+    tabAgents.classList.remove('active');
+  }
+}
+window.switchTab = switchTab;
 
 </script>
 </body>
